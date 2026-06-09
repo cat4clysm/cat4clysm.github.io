@@ -1324,20 +1324,20 @@
              (d === 'hard' || d === 'insane') ? 'is-active-red' : 'is-active-gray';
     }
 
-    // Platform buttons
-    document.querySelectorAll('[data-platform]').forEach(btn => {
+    // Platform buttons (only <button> elements, not writeup-item divs)
+    document.querySelectorAll('button[data-platform]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-platform]').forEach(b => b.classList.remove(...ACTIVE_CLASSES));
+        document.querySelectorAll('button[data-platform]').forEach(b => b.classList.remove(...ACTIVE_CLASSES));
         btn.classList.add(platformActiveClass(btn.dataset.platform));
         activePlatform = btn.dataset.platform;
         applyFilters();
       });
     });
 
-    // Difficulty buttons
-    document.querySelectorAll('[data-diff]').forEach(btn => {
+    // Difficulty buttons (only <button> elements, not writeup-item divs)
+    document.querySelectorAll('button[data-diff]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('[data-diff]').forEach(b => b.classList.remove(...ACTIVE_CLASSES));
+        document.querySelectorAll('button[data-diff]').forEach(b => b.classList.remove(...ACTIVE_CLASSES));
         btn.classList.add(diffActiveClass(btn.dataset.diff));
         activeDiff = btn.dataset.diff;
         applyFilters();
