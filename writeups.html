@@ -1378,19 +1378,17 @@
     setPlatformState('all');
     setDiffState('all');
 
-    // Tag chips
+    // Tag chips — preventDefault stops the label from re-firing click on the input (double-toggle bug)
     tagChips.forEach(chip => {
-      chip.addEventListener('click', () => {
+      chip.addEventListener('click', (e) => {
+        e.preventDefault();
         const tag = chip.dataset.tag;
-        const cb = chip.querySelector('input');
         if (activeTags.has(tag)) {
           activeTags.delete(tag);
           chip.classList.remove('selected');
-          cb.checked = false;
         } else {
           activeTags.add(tag);
           chip.classList.add('selected');
-          cb.checked = true;
         }
         applyFilters();
       });
