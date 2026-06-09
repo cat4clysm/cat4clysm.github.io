@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THM - SmagGrotto | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-info text-dark fs-6">TryHackMe</span>
+        <span class="badge bg-success fs-6">Easy</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">PCAP</span>
+        <span class="badge bg-secondary">Web</span>
+        <span class="badge bg-secondary">SSH</span>
+        <span class="badge bg-secondary">Cron</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">SmagGrotto</h1>
+      <p class="text-secondary mb-3">PCAP capturado revela credenciales de login; PHP reverse shell; escalada via clave SSH en directorio escribible.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">wfuzz</span>
+        <span class="badge bg-dark border border-secondary p-2">wireshark</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p 22,80 10.10.173.35 -oN targeted</code></pre>
+      </div><img src="img/thm-smaggrotto/225438.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-globe"></i> Puerto 80 - PCAP Analysis</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>wfuzz -c --hc 403,404 -t 100 -w /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt http://10.10.173.35/FUZZ</code></pre>
+      </div><img src="img/thm-smaggrotto/234505.png" class="img-fluid rounded mb-3 border border-secondary" alt="wfuzz result">
+      <p class="text-secondary">Descargamos un archivo PCAP:</p>
+      <img src="img/thm-smaggrotto/232506.png" class="img-fluid rounded mb-3 border border-secondary" alt="pcap download">
+      <p class="text-secondary">Del PCAP extraemos: login page, hostname, username y password:</p>
+      <img src="img/thm-smaggrotto/232917.png" class="img-fluid rounded mb-3 border border-secondary" alt="pcap analysis">
+      <div class="code-block mb-3"><pre><code>login.php | development.smag.thm | helpdesk | cH4nG3M3_n0w</code></pre></div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-lightning-charge"></i> Explotacion - PHP Reverse Shell</h4>
+      <p class="text-secondary">Agregamos <code>development.smag.thm</code> al /etc/hosts y usamos las credenciales.</p>
+      <img src="img/thm-smaggrotto/234923.png" class="img-fluid rounded mb-3 border border-secondary" alt="login">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nc -lvp 4545</code></pre>
+      </div><img src="img/thm-smaggrotto/002503.png" class="img-fluid rounded mb-3 border border-secondary" alt="shell">
+      <img src="img/thm-smaggrotto/005608.png" class="img-fluid rounded mb-3 border border-secondary" alt="user">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-arrow-up-circle"></i> Escalada - SSH authorized_keys + cron</h4>
+      <img src="img/thm-smaggrotto/003118.png" class="img-fluid rounded mb-3 border border-secondary" alt="writable ssh">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>sudo ssh -i /.ssh/id_rsa jake@10.10.30.100
+cat /home/jake/user.txt</code></pre>
+      </div><img src="img/thm-smaggrotto/005526.png" class="img-fluid rounded mb-3 border border-secondary" alt="jake user">
+      <img src="img/thm-smaggrotto/005238.png" class="img-fluid rounded mb-3 border border-secondary" alt="escalada">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>Los archivos PCAP capturados en el servidor pueden contener credenciales de autenticacion.</li>
+<li>Los hostnames virtuales revelados en capturas de red pueden exponer subdominios de admin.</li>
+<li>Las claves SSH en directorios escribibles permiten pivotar a otros usuarios del sistema.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

