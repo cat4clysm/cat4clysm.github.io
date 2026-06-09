@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cat4clysm | Pentester</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="style.css" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="#">&gt;_ cat4clysm</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
+          <li class="nav-item"><a class="nav-link" href="#tools">Tools</a></li>
+          <li class="nav-item"><a class="nav-link" href="#writeups">Writeups</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section id="hero" class="d-flex align-items-center min-vh-100">
+    <div class="container text-center">
+      <div class="terminal-box mx-auto mb-4">
+        <div class="terminal-header">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <div class="terminal-body">
+          <p class="mb-1"><span class="text-success">root@kali</span><span class="text-white">:</span><span class="text-primary">~</span><span class="text-white">$ whoami</span></p>
+          <p class="mb-1 text-warning fw-bold fs-3">cat4clysm</p>
+          <p class="mb-1"><span class="text-success">root@kali</span><span class="text-white">:</span><span class="text-primary">~</span><span class="text-white">$ cat role.txt</span></p>
+          <p class="mb-0 text-info">Pentester | CTF Player | Security Researcher</p>
+          <p class="mb-0 text-secondary blink">_</p>
+        </div>
+      </div>
+      <a href="#about" class="btn btn-outline-danger btn-lg mt-3">
+        <i class="bi bi-chevron-double-down"></i> Explorar
+      </a>
+    </div>
+  </section>
+
+  <!-- About -->
+  <section id="about" class="py-5">
+    <div class="container">
+      <h2 class="section-title text-danger mb-4"><i class="bi bi-person-badge"></i> About</h2>
+      <div class="row align-items-center">
+        <div class="col-md-2 text-center mb-4 mb-md-0">
+          <div class="avatar-placeholder">
+            <i class="bi bi-person-fill-lock fs-1 text-danger"></i>
+          </div>
+        </div>
+        <div class="col-md-10">
+          <p class="lead text-secondary">
+            Soy <span class="text-white fw-bold">cat4clysm</span>, un apasionado de la ciberseguridad ofensiva.
+            Me dedico a la práctica de pentesting, resolución de CTFs en plataformas como
+            <span class="text-danger">HackTheBox</span> y <span class="text-info">TryHackMe</span>,
+            y al estudio constante de técnicas de explotación y herramientas de seguridad.
+          </p>
+          <div class="row mt-3">
+            <div class="col-sm-4 mb-2">
+              <div class="stat-card p-3 rounded border border-danger text-center">
+                <h4 class="text-danger mb-0" id="machinesCount">0</h4>
+                <small class="text-secondary">Máquinas resueltas</small>
+              </div>
+            </div>
+            <div class="col-sm-4 mb-2">
+              <div class="stat-card p-3 rounded border border-info text-center">
+                <h4 class="text-info mb-0" id="toolsCount">0</h4>
+                <small class="text-secondary">Herramientas dominadas</small>
+              </div>
+            </div>
+            <div class="col-sm-4 mb-2">
+              <div class="stat-card p-3 rounded border border-warning text-center">
+                <h4 class="text-warning mb-0" id="writeupsCount">0</h4>
+                <small class="text-secondary">Writeups publicados</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools -->
+  <section id="tools" class="py-5 bg-tools">
+    <div class="container">
+      <h2 class="section-title text-danger mb-4"><i class="bi bi-tools"></i> Tools</h2>
+      <p class="text-secondary mb-4">Herramientas que utilizo en mis assessments y CTFs.</p>
+      <div class="row g-3" id="toolsGrid">
+
+        <!-- Reconnaissance -->
+        <div class="col-12">
+          <h5 class="text-info border-bottom border-info pb-1 mb-3"><i class="bi bi-search"></i> Reconnaissance</h5>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-diagram-3 text-info fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">Nmap</h6>
+            <small class="text-secondary">Port scanning & enumeration</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-globe text-info fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">Gobuster</h6>
+            <small class="text-secondary">Directory & DNS bruteforce</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-hdd-network text-info fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">Ffuf</h6>
+            <small class="text-secondary">Web fuzzing</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-broadcast text-info fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">Netcat</h6>
+            <small class="text-secondary">Network utility & listener</small>
+          </div>
+        </div>
+
+        <!-- Exploitation -->
+        <div class="col-12 mt-3">
+          <h5 class="text-danger border-bottom border-danger pb-1 mb-3"><i class="bi bi-lightning-charge"></i> Exploitation</h5>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-bug text-danger fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">Metasploit</h6>
+            <small class="text-secondary">Exploitation framework</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-code-slash text-danger fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">SQLmap</h6>
+            <small class="text-secondary">SQL injection automation</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-shield-slash text-danger fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">Burp Suite</h6>
+            <small class="text-secondary">Web app testing proxy</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-terminal text-danger fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">MSFvenom</h6>
+            <small class="text-secondary">Payload generation</small>
+          </div>
+        </div>
+
+        <!-- Post-Exploitation -->
+        <div class="col-12 mt-3">
+          <h5 class="text-warning border-bottom border-warning pb-1 mb-3"><i class="bi bi-arrow-up-right-circle"></i> Post-Exploitation & Privesc</h5>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-person-fill-up text-warning fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">LinPEAS</h6>
+            <small class="text-secondary">Linux privilege escalation</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-windows text-warning fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">WinPEAS</h6>
+            <small class="text-secondary">Windows privilege escalation</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-key text-warning fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">Mimikatz</h6>
+            <small class="text-secondary">Credential extraction</small>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="tool-card p-3 rounded text-center">
+            <i class="bi bi-diagram-2 text-warning fs-3 mb-2 d-block"></i>
+            <h6 class="mb-1">BloodHound</h6>
+            <small class="text-secondary">AD attack path analysis</small>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Writeups -->
+  <section id="writeups" class="py-5">
+    <div class="container">
+      <h2 class="section-title text-danger mb-2"><i class="bi bi-journal-code"></i> Writeups</h2>
+      <p class="text-secondary mb-4">Documentación de máquinas resueltas en plataformas CTF.</p>
+
+      <!-- Filters -->
+      <div class="mb-4 d-flex flex-wrap gap-2">
+        <button class="btn btn-sm btn-danger active filter-btn" data-filter="all">Todos</button>
+        <button class="btn btn-sm btn-outline-danger filter-btn" data-filter="htb">HackTheBox</button>
+        <button class="btn btn-sm btn-outline-info filter-btn" data-filter="thm">TryHackMe</button>
+        <button class="btn btn-sm btn-outline-secondary filter-btn" data-filter="easy">Easy</button>
+        <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="medium">Medium</button>
+        <button class="btn btn-sm btn-outline-danger filter-btn" data-filter="hard">Hard</button>
+      </div>
+
+      <div class="row g-4" id="writeupsGrid">
+
+        <!-- Ejemplo HTB -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="htb easy">
+          <div class="writeup-card h-100 p-4 rounded">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span class="badge bg-danger">HackTheBox</span>
+              <span class="badge bg-success">Easy</span>
+            </div>
+            <h5 class="mb-1">Machine Name</h5>
+            <p class="text-secondary small mb-3">Linux · Web · SUID</p>
+            <p class="text-secondary small">
+              Descripción breve del vector de ataque inicial y la ruta de escalada de privilegios utilizada.
+            </p>
+            <div class="mt-auto pt-3 border-top border-secondary">
+              <span class="badge bg-secondary me-1">nmap</span>
+              <span class="badge bg-secondary me-1">gobuster</span>
+              <span class="badge bg-secondary">linpeas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ejemplo THM -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm medium">
+          <div class="writeup-card h-100 p-4 rounded">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span class="badge bg-info text-dark">TryHackMe</span>
+              <span class="badge bg-warning text-dark">Medium</span>
+            </div>
+            <h5 class="mb-1">Room Name</h5>
+            <p class="text-secondary small mb-3">Windows · SMB · Metasploit</p>
+            <p class="text-secondary small">
+              Descripción breve del vector de ataque inicial y la ruta de escalada de privilegios utilizada.
+            </p>
+            <div class="mt-auto pt-3 border-top border-secondary">
+              <span class="badge bg-secondary me-1">nmap</span>
+              <span class="badge bg-secondary me-1">metasploit</span>
+              <span class="badge bg-secondary">winpeas</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Placeholder para agregar más -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="htb hard">
+          <div class="writeup-card h-100 p-4 rounded border-dashed text-center d-flex flex-column justify-content-center align-items-center">
+            <i class="bi bi-plus-circle text-secondary fs-1 mb-3"></i>
+            <p class="text-secondary">Próximamente más writeups...</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact -->
+  <section id="contact" class="py-5 bg-tools">
+    <div class="container text-center">
+      <h2 class="section-title text-danger mb-4"><i class="bi bi-envelope-at"></i> Contact</h2>
+      <p class="text-secondary mb-4">¿Tienes alguna pregunta o propuesta? Déjame un mensaje.</p>
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <form>
+            <div class="mb-3">
+              <input type="text" class="form-control bg-dark border-secondary text-white" placeholder="Tu nombre" />
+            </div>
+            <div class="mb-3">
+              <input type="email" class="form-control bg-dark border-secondary text-white" placeholder="Tu email" />
+            </div>
+            <div class="mb-3">
+              <textarea class="form-control bg-dark border-secondary text-white" rows="4" placeholder="Tu mensaje..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-danger w-100">
+              <i class="bi bi-send"></i> Enviar mensaje
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0">
+      <span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;
+      <span class="text-muted">Hack the planet.</span>
+    </p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
