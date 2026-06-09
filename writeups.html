@@ -13,23 +13,22 @@
       border: 1px solid #2a2a2a;
       border-radius: 10px;
     }
-    .platform-btn {
+    .filter-btn-base {
       border-radius: 20px;
       font-size: 0.8rem;
       padding: 4px 14px;
       transition: all .2s;
+      background: transparent;
+      border: 1px solid #444;
+      color: #888;
+      cursor: pointer;
     }
-    .platform-btn.active-htb { background: #dc3545; border-color: #dc3545; color: #fff; }
-    .platform-btn.active-thm { background: #0dcaf0; border-color: #0dcaf0; color: #000; }
-    .platform-btn.active-all { background: #6c757d; border-color: #6c757d; color: #fff; }
-
-    .diff-btn {
-      border-radius: 20px;
-      font-size: 0.78rem;
-      padding: 3px 12px;
-      transition: all .2s;
-    }
-    .diff-btn.active { opacity: 1 !important; }
+    .filter-btn-base:hover { border-color: #888; color: #ccc; }
+    .filter-btn-base.is-active-red   { background: #dc3545 !important; border-color: #dc3545 !important; color: #fff !important; }
+    .filter-btn-base.is-active-cyan  { background: #0dcaf0 !important; border-color: #0dcaf0 !important; color: #000 !important; }
+    .filter-btn-base.is-active-gray  { background: #555 !important; border-color: #555 !important; color: #fff !important; }
+    .filter-btn-base.is-active-green { background: #198754 !important; border-color: #198754 !important; color: #fff !important; }
+    .filter-btn-base.is-active-yellow{ background: #ffc107 !important; border-color: #ffc107 !important; color: #000 !important; }
 
     .tag-chip {
       display: inline-flex;
@@ -141,12 +140,12 @@
         <div class="d-flex align-items-center gap-3 flex-wrap">
           <span class="text-secondary small fw-semibold" style="min-width:70px">Plataforma</span>
           <div class="d-flex gap-2 flex-wrap">
-            <button class="btn btn-sm platform-btn active active-all" data-platform="all">Todos</button>
-            <button class="btn btn-sm btn-outline-danger platform-btn" data-platform="htb">
-              <i class="bi bi-box text-danger"></i> HackTheBox
+            <button class="filter-btn-base is-active-gray" data-platform="all">Todos</button>
+            <button class="filter-btn-base" data-platform="htb">
+              <i class="bi bi-box"></i> HackTheBox
             </button>
-            <button class="btn btn-sm btn-outline-info platform-btn" data-platform="thm">
-              <i class="bi bi-shield text-info"></i> TryHackMe
+            <button class="filter-btn-base" data-platform="thm">
+              <i class="bi bi-shield"></i> TryHackMe
             </button>
           </div>
         </div>
@@ -157,11 +156,11 @@
         <div class="d-flex align-items-center gap-3 flex-wrap">
           <span class="text-secondary small fw-semibold" style="min-width:70px">Dificultad</span>
           <div class="d-flex gap-2 flex-wrap">
-            <button class="btn btn-sm btn-secondary diff-btn active" data-diff="all">Todas</button>
-            <button class="btn btn-sm btn-outline-success diff-btn" data-diff="easy">Easy</button>
-            <button class="btn btn-sm btn-outline-warning diff-btn" data-diff="medium">Medium</button>
-            <button class="btn btn-sm btn-outline-danger diff-btn" data-diff="hard">Hard</button>
-            <button class="btn btn-sm btn-outline-danger diff-btn" data-diff="insane" style="border-style:dashed">Insane</button>
+            <button class="filter-btn-base is-active-gray" data-diff="all">Todas</button>
+            <button class="filter-btn-base" data-diff="easy">Easy</button>
+            <button class="filter-btn-base" data-diff="medium">Medium</button>
+            <button class="filter-btn-base" data-diff="hard">Hard</button>
+            <button class="filter-btn-base" data-diff="insane" style="border-style:dashed">Insane</button>
           </div>
         </div>
       </div>
@@ -1315,35 +1314,31 @@
       noResults.classList.toggle('visible', count === 0);
     }
 
+    const ACTIVE_CLASSES = ['is-active-gray','is-active-red','is-active-cyan','is-active-green','is-active-yellow'];
+
+    function platformActiveClass(p) {
+      return p === 'htb' ? 'is-active-red' : p === 'thm' ? 'is-active-cyan' : 'is-active-gray';
+    }
+    function diffActiveClass(d) {
+      return d === 'easy' ? 'is-active-green' : d === 'medium' ? 'is-active-yellow' :
+             (d === 'hard' || d === 'insane') ? 'is-active-red' : 'is-active-gray';
+    }
+
     // Platform buttons
-    document.querySelectorAll('.platform-btn').forEach(btn => {
+    document.querySelectorAll('[data-platform]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.platform-btn').forEach(b => {
-          b.classList.remove('active', 'active-htb', 'active-thm', 'active-all',
-            'btn-danger', 'btn-info');
-          const p = b.dataset.platform;
-          b.classList.add(p === 'htb' ? 'btn-outline-danger' : p === 'thm' ? 'btn-outline-info' : 'btn-secondary');
-        });
-        btn.classList.remove('btn-outline-danger', 'btn-outline-info', 'btn-secondary');
-        btn.classList.add('active', `active-${btn.dataset.platform}`);
+        document.querySelectorAll('[data-platform]').forEach(b => b.classList.remove(...ACTIVE_CLASSES));
+        btn.classList.add(platformActiveClass(btn.dataset.platform));
         activePlatform = btn.dataset.platform;
         applyFilters();
       });
     });
 
     // Difficulty buttons
-    document.querySelectorAll('.diff-btn').forEach(btn => {
+    document.querySelectorAll('[data-diff]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('.diff-btn').forEach(b => {
-          b.classList.remove('active', 'btn-success', 'btn-warning', 'btn-danger', 'btn-secondary');
-          const d = b.dataset.diff;
-          b.classList.add(d === 'easy' ? 'btn-outline-success' : d === 'medium' ? 'btn-outline-warning' :
-            d === 'hard' || d === 'insane' ? 'btn-outline-danger' : 'btn-secondary');
-        });
-        const d = btn.dataset.diff;
-        btn.classList.remove('btn-outline-success', 'btn-outline-warning', 'btn-outline-danger', 'btn-secondary');
-        btn.classList.add('active', d === 'easy' ? 'btn-success' : d === 'medium' ? 'btn-warning' :
-          d === 'hard' || d === 'insane' ? 'btn-danger' : 'btn-secondary');
+        document.querySelectorAll('[data-diff]').forEach(b => b.classList.remove(...ACTIVE_CLASSES));
+        btn.classList.add(diffActiveClass(btn.dataset.diff));
         activeDiff = btn.dataset.diff;
         applyFilters();
       });
@@ -1393,17 +1388,13 @@
       searchInput.value = '';
       clearSearchBtn.style.display = 'none';
       tagChips.forEach(c => { c.classList.remove('selected'); c.querySelector('input').checked = false; });
-      document.querySelectorAll('.platform-btn').forEach(b => {
-        b.classList.remove('active', 'active-htb', 'active-thm', 'active-all', 'btn-danger', 'btn-info');
-        const p = b.dataset.platform;
-        if (p === 'all') b.classList.add('active', 'active-all');
-        else b.classList.add(p === 'htb' ? 'btn-outline-danger' : 'btn-outline-info');
+      document.querySelectorAll('[data-platform]').forEach(b => {
+        b.classList.remove(...ACTIVE_CLASSES);
+        if (b.dataset.platform === 'all') b.classList.add('is-active-gray');
       });
-      document.querySelectorAll('.diff-btn').forEach(b => {
-        b.classList.remove('active', 'btn-success', 'btn-warning', 'btn-danger', 'btn-secondary');
-        const d = b.dataset.diff;
-        if (d === 'all') b.classList.add('active', 'btn-secondary');
-        else b.classList.add(d === 'easy' ? 'btn-outline-success' : d === 'medium' ? 'btn-outline-warning' : 'btn-outline-danger');
+      document.querySelectorAll('[data-diff]').forEach(b => {
+        b.classList.remove(...ACTIVE_CLASSES);
+        if (b.dataset.diff === 'all') b.classList.add('is-active-gray');
       });
       applyFilters();
     });
