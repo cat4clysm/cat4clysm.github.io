@@ -16,9 +16,9 @@ function animateCounter(el, target, duration = 1500) {
 const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      animateCounter(document.getElementById('machinesCount'), 12);
+      animateCounter(document.getElementById('machinesCount'), 11);
       animateCounter(document.getElementById('toolsCount'), 15);
-      animateCounter(document.getElementById('writeupsCount'), 3);
+      animateCounter(document.getElementById('writeupsCount'), 11);
       observer.disconnect();
     }
   });

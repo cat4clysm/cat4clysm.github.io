@@ -220,56 +220,224 @@
 
       <div class="row g-4" id="writeupsGrid">
 
-        <!-- HTB Lame -->
-        <div class="col-md-6 col-lg-4 writeup-item" data-tags="htb easy">
-          <a href="writeups/htb-lame.html" class="text-decoration-none">
+        <!-- HTB Batle -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="htb medium">
+          <a href="writeups/htb-batle.html" class="text-decoration-none">
             <div class="writeup-card h-100 p-4 rounded">
               <div class="d-flex justify-content-between align-items-start mb-3">
                 <span class="badge bg-danger">HackTheBox</span>
-                <span class="badge bg-success">Easy</span>
+                <span class="badge bg-warning text-dark">Medium</span>
               </div>
-              <h5 class="mb-1 text-white">Lame</h5>
-              <p class="text-secondary small mb-3">Linux · Samba · CVE-2007-2447</p>
-              <p class="text-secondary small">
-                Explotación de Samba 3.0.20 mediante username map script para obtener acceso root directo sin escalada.
-              </p>
+              <h5 class="mb-1 text-white">Batle</h5>
+              <p class="text-secondary small mb-3">Linux · nginx · File Upload</p>
+              <p class="text-secondary small">Panel admin expuesto en puerto 8080 sin autenticación. RCE via subida de webshell PHP.</p>
               <div class="mt-auto pt-3 border-top border-secondary">
                 <span class="badge bg-secondary me-1">nmap</span>
-                <span class="badge bg-secondary me-1">metasploit</span>
-                <span class="badge bg-secondary">smbclient</span>
+                <span class="badge bg-secondary me-1">gobuster</span>
+                <span class="badge bg-secondary">burp suite</span>
               </div>
             </div>
           </a>
         </div>
 
-        <!-- THM Ignite -->
-        <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm medium">
-          <a href="writeups/thm-ignite.html" class="text-decoration-none">
+        <!-- HTB Batle2 -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="htb medium">
+          <a href="writeups/htb-batle2.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-danger">HackTheBox</span>
+                <span class="badge bg-warning text-dark">Medium</span>
+              </div>
+              <h5 class="mb-1 text-white">Batle2</h5>
+              <p class="text-secondary small mb-3">Linux · MySQL · Web</p>
+              <p class="text-secondary small">MySQL 8.0 expuesto sin auth. Webshell via SELECT INTO OUTFILE tras crackear hash MD5.</p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">nmap</span>
+                <span class="badge bg-secondary me-1">mysql</span>
+                <span class="badge bg-secondary">john</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- HTB Envy -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="htb medium">
+          <a href="writeups/htb-envy.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-danger">HackTheBox</span>
+                <span class="badge bg-warning text-dark">Medium</span>
+              </div>
+              <h5 class="mb-1 text-white">Envy</h5>
+              <p class="text-secondary small mb-3">Linux · Web · File Upload · Cronjob</p>
+              <p class="text-secondary small">Bypass de restricción de extensiones con .php5. Escalada via cronjob de root escribible.</p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">dirsearch</span>
+                <span class="badge bg-secondary me-1">burp suite</span>
+                <span class="badge bg-secondary">linpeas</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- THM AgentT -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm easy">
+          <a href="writeups/thm-agentt.html" class="text-decoration-none">
             <div class="writeup-card h-100 p-4 rounded">
               <div class="d-flex justify-content-between align-items-start mb-3">
                 <span class="badge bg-info text-dark">TryHackMe</span>
-                <span class="badge bg-warning text-dark">Medium</span>
+                <span class="badge bg-success">Easy</span>
               </div>
-              <h5 class="mb-1 text-white">Ignite</h5>
-              <p class="text-secondary small mb-3">Linux · Web · RCE</p>
-              <p class="text-secondary small">
-                RCE en Fuel CMS 1.4.1 (CVE-2018-16763) y escalada usando credenciales en archivo de configuración.
-              </p>
+              <h5 class="mb-1 text-white">AgentT</h5>
+              <p class="text-secondary small mb-3">Linux · PHP 8.1.0-dev · RCE</p>
+              <p class="text-secondary small">Backdoor en PHP 8.1.0-dev explotado via header User-Agentt para RCE directo.</p>
               <div class="mt-auto pt-3 border-top border-secondary">
                 <span class="badge bg-secondary me-1">nmap</span>
-                <span class="badge bg-secondary me-1">burp suite</span>
+                <span class="badge bg-secondary me-1">curl</span>
                 <span class="badge bg-secondary">netcat</span>
               </div>
             </div>
           </a>
         </div>
 
-        <!-- Placeholder para agregar más -->
-        <div class="col-md-6 col-lg-4 writeup-item" data-tags="htb hard">
-          <div class="writeup-card h-100 p-4 rounded border-dashed text-center d-flex flex-column justify-content-center align-items-center">
-            <i class="bi bi-plus-circle text-secondary fs-1 mb-3"></i>
-            <p class="text-secondary">Próximamente más writeups...</p>
-          </div>
+        <!-- THM Attacktive Directory -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm medium">
+          <a href="writeups/thm-attacktivedirectory.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-info text-dark">TryHackMe</span>
+                <span class="badge bg-warning text-dark">Medium</span>
+              </div>
+              <h5 class="mb-1 text-white">Attacktive Directory</h5>
+              <p class="text-secondary small mb-3">Windows · Active Directory · Kerberos</p>
+              <p class="text-secondary small">AS-REP Roasting, secretsdump y Pass-the-Hash contra dominio spookysec.local.</p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">kerbrute</span>
+                <span class="badge bg-secondary me-1">impacket</span>
+                <span class="badge bg-secondary">evil-winrm</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- THM Daily Bugle -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm hard">
+          <a href="writeups/thm-dailybugle.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-info text-dark">TryHackMe</span>
+                <span class="badge bg-danger">Hard</span>
+              </div>
+              <h5 class="mb-1 text-white">Daily Bugle</h5>
+              <p class="text-secondary small mb-3">Linux · Joomla · SQLi · sudo yum</p>
+              <p class="text-secondary small">SQLi en Joomla 3.7.0 con joomblah.py. Escalada a root via GTFOBins (yum).</p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">joomblah</span>
+                <span class="badge bg-secondary me-1">john</span>
+                <span class="badge bg-secondary">netcat</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- THM LookingGlass -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm medium">
+          <a href="writeups/thm-lookingglass.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-info text-dark">TryHackMe</span>
+                <span class="badge bg-warning text-dark">Medium</span>
+              </div>
+              <h5 class="mb-1 text-white">LookingGlass</h5>
+              <p class="text-secondary small mb-3">Linux · SSH · Dropbear · rc.local</p>
+              <p class="text-secondary small">Búsqueda binaria entre puertos Dropbear para encontrar la clave SSH. Escalada via rc.local.</p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">nmap</span>
+                <span class="badge bg-secondary me-1">ssh</span>
+                <span class="badge bg-secondary">bash</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- THM UltraTech -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm medium">
+          <a href="writeups/thm-ultratech.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-info text-dark">TryHackMe</span>
+                <span class="badge bg-warning text-dark">Medium</span>
+              </div>
+              <h5 class="mb-1 text-white">UltraTech</h5>
+              <p class="text-secondary small mb-3">Linux · Node.js · Command Injection · Docker</p>
+              <p class="text-secondary small">Command injection en API Node.js. Escalada a root via Docker breakout (grupo docker).</p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">nmap</span>
+                <span class="badge bg-secondary me-1">curl</span>
+                <span class="badge bg-secondary">docker</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- THM The Marketplace -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm hard">
+          <a href="writeups/thm-marketplace.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-info text-dark">TryHackMe</span>
+                <span class="badge bg-danger">Hard</span>
+              </div>
+              <h5 class="mb-1 text-white">The Marketplace</h5>
+              <p class="text-secondary small mb-3">Linux · XSS · SQLi · JWT · Docker</p>
+              <p class="text-secondary small">XSS almacenado → cookie hijacking → JWT manipulation → SQLi → Docker breakout.</p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">burp suite</span>
+                <span class="badge bg-secondary me-1">sqlmap</span>
+                <span class="badge bg-secondary">docker</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- THM SQHell -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm medium">
+          <a href="writeups/thm-sqhell.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-info text-dark">TryHackMe</span>
+                <span class="badge bg-warning text-dark">Medium</span>
+              </div>
+              <h5 class="mb-1 text-white">SQHell</h5>
+              <p class="text-secondary small mb-3">Web · SQLi · Blind · WAF Bypass</p>
+              <p class="text-secondary small">5 retos de SQL injection: in-band, blind boolean, time-based, header injection y bypass de WAF.</p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">burp suite</span>
+                <span class="badge bg-secondary me-1">sqlmap</span>
+                <span class="badge bg-secondary">python</span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- THM Year of the Pig -->
+        <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm hard">
+          <a href="writeups/thm-yearofthepig.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-info text-dark">TryHackMe</span>
+                <span class="badge bg-danger">Hard</span>
+              </div>
+              <h5 class="mb-1 text-white">Year of the Pig</h5>
+              <p class="text-secondary small mb-3">Linux · SQLi · CeWL · Custom Wordlist</p>
+              <p class="text-secondary small">SQLi en login + wordlist personalizada con CeWL y reglas Hashcat. Escalada via sudo script.</p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">cewl</span>
+                <span class="badge bg-secondary me-1">hashcat</span>
+                <span class="badge bg-secondary">sqlmap</span>
+              </div>
+            </div>
+          </a>
         </div>
 
       </div>

