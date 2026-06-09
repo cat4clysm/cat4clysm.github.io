@@ -22,7 +22,6 @@
           <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
           <li class="nav-item"><a class="nav-link" href="#tools">Tools</a></li>
           <li class="nav-item"><a class="nav-link" href="#writeups">Writeups</a></li>
-          <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
         </ul>
       </div>
     </div>
@@ -221,44 +220,48 @@
 
       <div class="row g-4" id="writeupsGrid">
 
-        <!-- Ejemplo HTB -->
+        <!-- HTB Lame -->
         <div class="col-md-6 col-lg-4 writeup-item" data-tags="htb easy">
-          <div class="writeup-card h-100 p-4 rounded">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <span class="badge bg-danger">HackTheBox</span>
-              <span class="badge bg-success">Easy</span>
+          <a href="writeups/htb-lame.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-danger">HackTheBox</span>
+                <span class="badge bg-success">Easy</span>
+              </div>
+              <h5 class="mb-1 text-white">Lame</h5>
+              <p class="text-secondary small mb-3">Linux · Samba · CVE-2007-2447</p>
+              <p class="text-secondary small">
+                Explotación de Samba 3.0.20 mediante username map script para obtener acceso root directo sin escalada.
+              </p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">nmap</span>
+                <span class="badge bg-secondary me-1">metasploit</span>
+                <span class="badge bg-secondary">smbclient</span>
+              </div>
             </div>
-            <h5 class="mb-1">Machine Name</h5>
-            <p class="text-secondary small mb-3">Linux · Web · SUID</p>
-            <p class="text-secondary small">
-              Descripción breve del vector de ataque inicial y la ruta de escalada de privilegios utilizada.
-            </p>
-            <div class="mt-auto pt-3 border-top border-secondary">
-              <span class="badge bg-secondary me-1">nmap</span>
-              <span class="badge bg-secondary me-1">gobuster</span>
-              <span class="badge bg-secondary">linpeas</span>
-            </div>
-          </div>
+          </a>
         </div>
 
-        <!-- Ejemplo THM -->
+        <!-- THM Ignite -->
         <div class="col-md-6 col-lg-4 writeup-item" data-tags="thm medium">
-          <div class="writeup-card h-100 p-4 rounded">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <span class="badge bg-info text-dark">TryHackMe</span>
-              <span class="badge bg-warning text-dark">Medium</span>
+          <a href="writeups/thm-ignite.html" class="text-decoration-none">
+            <div class="writeup-card h-100 p-4 rounded">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <span class="badge bg-info text-dark">TryHackMe</span>
+                <span class="badge bg-warning text-dark">Medium</span>
+              </div>
+              <h5 class="mb-1 text-white">Ignite</h5>
+              <p class="text-secondary small mb-3">Linux · Web · RCE</p>
+              <p class="text-secondary small">
+                RCE en Fuel CMS 1.4.1 (CVE-2018-16763) y escalada usando credenciales en archivo de configuración.
+              </p>
+              <div class="mt-auto pt-3 border-top border-secondary">
+                <span class="badge bg-secondary me-1">nmap</span>
+                <span class="badge bg-secondary me-1">burp suite</span>
+                <span class="badge bg-secondary">netcat</span>
+              </div>
             </div>
-            <h5 class="mb-1">Room Name</h5>
-            <p class="text-secondary small mb-3">Windows · SMB · Metasploit</p>
-            <p class="text-secondary small">
-              Descripción breve del vector de ataque inicial y la ruta de escalada de privilegios utilizada.
-            </p>
-            <div class="mt-auto pt-3 border-top border-secondary">
-              <span class="badge bg-secondary me-1">nmap</span>
-              <span class="badge bg-secondary me-1">metasploit</span>
-              <span class="badge bg-secondary">winpeas</span>
-            </div>
-          </div>
+          </a>
         </div>
 
         <!-- Placeholder para agregar más -->
@@ -273,31 +276,6 @@
     </div>
   </section>
 
-  <!-- Contact -->
-  <section id="contact" class="py-5 bg-tools">
-    <div class="container text-center">
-      <h2 class="section-title text-danger mb-4"><i class="bi bi-envelope-at"></i> Contact</h2>
-      <p class="text-secondary mb-4">¿Tienes alguna pregunta o propuesta? Déjame un mensaje.</p>
-      <div class="row justify-content-center">
-        <div class="col-md-6">
-          <form>
-            <div class="mb-3">
-              <input type="text" class="form-control bg-dark border-secondary text-white" placeholder="Tu nombre" />
-            </div>
-            <div class="mb-3">
-              <input type="email" class="form-control bg-dark border-secondary text-white" placeholder="Tu email" />
-            </div>
-            <div class="mb-3">
-              <textarea class="form-control bg-dark border-secondary text-white" rows="4" placeholder="Tu mensaje..."></textarea>
-            </div>
-            <button type="submit" class="btn btn-danger w-100">
-              <i class="bi bi-send"></i> Enviar mensaje
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- Footer -->
   <footer class="py-4 text-center border-top border-secondary">

