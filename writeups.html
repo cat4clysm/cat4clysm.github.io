@@ -24,11 +24,16 @@
       cursor: pointer;
     }
     .filter-btn-base:hover { border-color: #888; color: #ccc; }
-    .filter-btn-base.is-active-red   { background: #dc3545 !important; border-color: #dc3545 !important; color: #fff !important; }
-    .filter-btn-base.is-active-cyan  { background: #0dcaf0 !important; border-color: #0dcaf0 !important; color: #000 !important; }
-    .filter-btn-base.is-active-gray  { background: #555 !important; border-color: #555 !important; color: #fff !important; }
-    .filter-btn-base.is-active-green { background: #198754 !important; border-color: #198754 !important; color: #fff !important; }
-    .filter-btn-base.is-active-yellow{ background: #ffc107 !important; border-color: #ffc107 !important; color: #000 !important; }
+    .filter-btn-base.is-active-red    { background: #dc3545 !important; border-color: #dc3545 !important; color: #fff !important; }
+    .filter-btn-base.is-active-cyan   { background: #0dcaf0 !important; border-color: #0dcaf0 !important; color: #000 !important; }
+    .filter-btn-base.is-active-gray   { background: #555 !important; border-color: #555 !important; color: #fff !important; }
+    .filter-btn-base.is-active-green  { background: #198754 !important; border-color: #198754 !important; color: #fff !important; }
+    .filter-btn-base.is-active-yellow { background: #ffc107 !important; border-color: #ffc107 !important; color: #000 !important; }
+    /* outline tint when "all" is selected — colored border but no fill */
+    .filter-btn-base.is-dim-red    { border-color: #dc3545 !important; color: #dc3545 !important; }
+    .filter-btn-base.is-dim-cyan   { border-color: #0dcaf0 !important; color: #0dcaf0 !important; }
+    .filter-btn-base.is-dim-green  { border-color: #198754 !important; color: #198754 !important; }
+    .filter-btn-base.is-dim-yellow { border-color: #ffc107 !important; color: #ffc107 !important; }
 
     .tag-chip {
       display: inline-flex;
@@ -1314,35 +1319,64 @@
       noResults.classList.toggle('visible', count === 0);
     }
 
-    const ACTIVE_CLASSES = ['is-active-gray','is-active-red','is-active-cyan','is-active-green','is-active-yellow'];
+    const ALL_STATE_CLASSES = [
+      'is-active-gray','is-active-red','is-active-cyan','is-active-green','is-active-yellow',
+      'is-dim-red','is-dim-cyan','is-dim-green','is-dim-yellow'
+    ];
 
-    function platformActiveClass(p) {
-      return p === 'htb' ? 'is-active-red' : p === 'thm' ? 'is-active-cyan' : 'is-active-gray';
-    }
-    function diffActiveClass(d) {
-      return d === 'easy' ? 'is-active-green' : d === 'medium' ? 'is-active-yellow' :
-             (d === 'hard' || d === 'insane') ? 'is-active-red' : 'is-active-gray';
+    const PLATFORM_DIM  = { htb: 'is-dim-red',  thm: 'is-dim-cyan' };
+    const PLATFORM_FILL = { htb: 'is-active-red', thm: 'is-active-cyan', all: 'is-active-gray' };
+    const DIFF_DIM  = { easy: 'is-dim-green', medium: 'is-dim-yellow', hard: 'is-dim-red', insane: 'is-dim-red' };
+    const DIFF_FILL = { easy: 'is-active-green', medium: 'is-active-yellow', hard: 'is-active-red', insane: 'is-active-red', all: 'is-active-gray' };
+
+    function setPlatformState(selected) {
+      document.querySelectorAll('button[data-platform]').forEach(b => {
+        b.classList.remove(...ALL_STATE_CLASSES);
+        const p = b.dataset.platform;
+        if (p === selected) {
+          b.classList.add(PLATFORM_FILL[p]);
+        } else if (selected === 'all' && p !== 'all') {
+          b.classList.add(PLATFORM_DIM[p]);   // colored outline when "all"
+        }
+        // "Todos" button: only colored when it's the active one
+        if (p === 'all' && selected === 'all') b.classList.add('is-active-gray');
+      });
     }
 
-    // Platform buttons (only <button> elements, not writeup-item divs)
+    function setDiffState(selected) {
+      document.querySelectorAll('button[data-diff]').forEach(b => {
+        b.classList.remove(...ALL_STATE_CLASSES);
+        const d = b.dataset.diff;
+        if (d === selected) {
+          b.classList.add(DIFF_FILL[d]);
+        } else if (selected === 'all' && d !== 'all') {
+          b.classList.add(DIFF_DIM[d]);        // colored outline when "all"
+        }
+        if (d === 'all' && selected === 'all') b.classList.add('is-active-gray');
+      });
+    }
+
+    // Platform buttons
     document.querySelectorAll('button[data-platform]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('button[data-platform]').forEach(b => b.classList.remove(...ACTIVE_CLASSES));
-        btn.classList.add(platformActiveClass(btn.dataset.platform));
         activePlatform = btn.dataset.platform;
+        setPlatformState(activePlatform);
         applyFilters();
       });
     });
 
-    // Difficulty buttons (only <button> elements, not writeup-item divs)
+    // Difficulty buttons
     document.querySelectorAll('button[data-diff]').forEach(btn => {
       btn.addEventListener('click', () => {
-        document.querySelectorAll('button[data-diff]').forEach(b => b.classList.remove(...ACTIVE_CLASSES));
-        btn.classList.add(diffActiveClass(btn.dataset.diff));
         activeDiff = btn.dataset.diff;
+        setDiffState(activeDiff);
         applyFilters();
       });
     });
+
+    // Init: show colored outlines on load (both groups start at "all")
+    setPlatformState('all');
+    setDiffState('all');
 
     // Tag chips
     tagChips.forEach(chip => {
@@ -1388,14 +1422,8 @@
       searchInput.value = '';
       clearSearchBtn.style.display = 'none';
       tagChips.forEach(c => { c.classList.remove('selected'); c.querySelector('input').checked = false; });
-      document.querySelectorAll('[data-platform]').forEach(b => {
-        b.classList.remove(...ACTIVE_CLASSES);
-        if (b.dataset.platform === 'all') b.classList.add('is-active-gray');
-      });
-      document.querySelectorAll('[data-diff]').forEach(b => {
-        b.classList.remove(...ACTIVE_CLASSES);
-        if (b.dataset.diff === 'all') b.classList.add('is-active-gray');
-      });
+      setPlatformState('all');
+      setDiffState('all');
       applyFilters();
     });
 
