@@ -28,8 +28,11 @@
     </div>
   </nav>
 
+  <!-- Particle canvas background -->
+  <canvas id="particleCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;"></canvas>
+
   <!-- Hero -->
-  <section id="hero" class="d-flex align-items-center min-vh-100">
+  <section id="hero" class="d-flex align-items-center min-vh-100" style="position:relative;z-index:1;">
     <div class="container text-center">
       <div class="terminal-box mx-auto mb-4">
         <div class="terminal-header">
@@ -326,5 +329,73 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="app.js"></script>
+  <script>
+    (function() {
+      const canvas = document.getElementById('particleCanvas');
+      const ctx = canvas.getContext('2d');
+      const COLOR = '#9fef00';
+      const PARTICLE_COUNT = 80;
+      const MAX_DIST = 140;
+      let W, H, particles = [];
+
+      function resize() {
+        W = canvas.width  = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+
+      function Particle() {
+        this.x  = Math.random() * W;
+        this.y  = Math.random() * H;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.r  = Math.random() * 1.5 + 1;
+      }
+
+      function init() {
+        particles = [];
+        for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, W, H);
+        // lines
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const d  = Math.sqrt(dx*dx + dy*dy);
+            if (d < MAX_DIST) {
+              ctx.beginPath();
+              ctx.strokeStyle = COLOR;
+              ctx.globalAlpha = (1 - d / MAX_DIST) * 0.15;
+              ctx.lineWidth = 0.8;
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+        // dots
+        ctx.globalAlpha = 0.5;
+        particles.forEach(p => {
+          ctx.beginPath();
+          ctx.fillStyle = COLOR;
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fill();
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < 0 || p.x > W) p.vx *= -1;
+          if (p.y < 0 || p.y > H) p.vy *= -1;
+        });
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(draw);
+      }
+
+      window.addEventListener('resize', () => { resize(); init(); });
+      resize();
+      init();
+      draw();
+    })();
+  </script>
 </body>
 </html>
