@@ -100,6 +100,57 @@
       border-top: 1px solid #222;
       margin: 12px 0;
     }
+
+    /* Section toggle */
+    .section-toggle {
+      display: flex;
+      background: #0d0d0d;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .section-toggle-btn {
+      flex: 1;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 9px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      background: transparent;
+      color: #666;
+    }
+    .section-toggle-btn.active-boxes {
+      background: #dc3545;
+      color: #fff;
+    }
+    .section-toggle-btn.active-ps {
+      background: #ff6633;
+      color: #fff;
+    }
+    .section-toggle-btn:not(.active-boxes):not(.active-ps):hover {
+      color: #aaa;
+      background: #1a1a1a;
+    }
+
+    /* PortSwigger cards */
+    .ps-card {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 10px;
+      transition: border-color .2s, transform .2s;
+      text-decoration: none;
+      display: block;
+    }
+    .ps-card:hover { border-color: #ff6633; transform: translateY(-3px); }
+    .ps-icon {
+      width: 44px; height: 44px;
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -119,8 +170,21 @@
     <!-- Header -->
     <div class="mb-4">
       <h1 class="text-white fw-bold mb-1"><i class="bi bi-journal-code text-danger"></i> Writeups</h1>
-      <p class="text-secondary">Documentación de máquinas resueltas en HackTheBox y TryHackMe.</p>
+      <p class="text-secondary">Documentación de máquinas y labs de seguridad web.</p>
     </div>
+
+    <!-- Section Toggle -->
+    <div class="section-toggle mb-4" style="max-width:400px">
+      <button class="section-toggle-btn active-boxes" id="btnBoxes">
+        <i class="bi bi-box-seam"></i> Boxes
+      </button>
+      <button class="section-toggle-btn" id="btnPS">
+        <i class="bi bi-bug"></i> PortSwigger
+      </button>
+    </div>
+
+    <!-- BOXES SECTION -->
+    <div id="boxesSection">
 
     <!-- Filter Panel -->
     <div class="filter-panel p-4 mb-4">
@@ -1265,6 +1329,137 @@
       </div>
 
     </div><!-- /row -->
+
+    </div><!-- /boxesSection -->
+
+    <!-- PORTSWIGGER SECTION -->
+    <div id="psSection" style="display:none">
+      <div class="row g-4">
+
+        <div class="col-md-6 col-lg-4">
+          <a href="portswigger/ps-xss.html" class="ps-card p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="ps-icon" style="background:#1a0a00;color:#ff6633"><i class="bi bi-code-slash"></i></div>
+              <div>
+                <h5 class="text-white mb-0 fw-bold">XSS</h5>
+                <span class="text-secondary small">Cross-Site Scripting</span>
+              </div>
+            </div>
+            <p class="text-secondary small mb-3">Reflected, Stored, DOM-based. WAF bypass, Angular sandbox escape, custom tags.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge" style="background:#1a0a00;color:#ff6633;border:1px solid #ff6633">Reflected</span>
+              <span class="badge" style="background:#1a0a00;color:#ff6633;border:1px solid #ff6633">DOM</span>
+              <span class="badge" style="background:#1a0a00;color:#ff6633;border:1px solid #ff6633">WAF Bypass</span>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <a href="portswigger/ps-xxe.html" class="ps-card p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="ps-icon" style="background:#0a1a0a;color:#20c997"><i class="bi bi-file-code"></i></div>
+              <div>
+                <h5 class="text-white mb-0 fw-bold">XXE Injection</h5>
+                <span class="text-secondary small">XML External Entities</span>
+              </div>
+            </div>
+            <p class="text-secondary small mb-3">File retrieval, SSRF via XXE, blind OOB exfiltration, error messages, XInclude, SVG upload.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge" style="background:#0a1a0a;color:#20c997;border:1px solid #20c997">OOB</span>
+              <span class="badge" style="background:#0a1a0a;color:#20c997;border:1px solid #20c997">SSRF</span>
+              <span class="badge" style="background:#0a1a0a;color:#20c997;border:1px solid #20c997">Blind</span>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <a href="portswigger/ps-csrf.html" class="ps-card p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="ps-icon" style="background:#0a0a1a;color:#6ea8fe"><i class="bi bi-arrow-repeat"></i></div>
+              <div>
+                <h5 class="text-white mb-0 fw-bold">CSRF</h5>
+                <span class="text-secondary small">Cross-Site Request Forgery</span>
+              </div>
+            </div>
+            <p class="text-secondary small mb-3">Token bypass, SameSite Lax, CRLF cookie injection, method override, referrer validation.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge" style="background:#0a0a1a;color:#6ea8fe;border:1px solid #6ea8fe">Token Bypass</span>
+              <span class="badge" style="background:#0a0a1a;color:#6ea8fe;border:1px solid #6ea8fe">SameSite</span>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <a href="portswigger/ps-access-control.html" class="ps-card p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="ps-icon" style="background:#1a1a0a;color:#ffc107"><i class="bi bi-shield-lock"></i></div>
+              <div>
+                <h5 class="text-white mb-0 fw-bold">Access Control</h5>
+                <span class="text-secondary small">Broken Access Control</span>
+              </div>
+            </div>
+            <p class="text-secondary small mb-3">Parameter-based, X-Original-URL, method switching, GUID, redirect leakage, Referer.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge" style="background:#1a1a0a;color:#ffc107;border:1px solid #ffc107">IDOR</span>
+              <span class="badge" style="background:#1a1a0a;color:#ffc107;border:1px solid #ffc107">Privilege Esc</span>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <a href="portswigger/ps-ssrf.html" class="ps-card p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="ps-icon" style="background:#1a0a1a;color:#e685b5"><i class="bi bi-diagram-3"></i></div>
+              <div>
+                <h5 class="text-white mb-0 fw-bold">SSRF</h5>
+                <span class="text-secondary small">Server-Side Request Forgery</span>
+              </div>
+            </div>
+            <p class="text-secondary small mb-3">Localhost aliases, URL parsing bypass, open redirect chaining, blind OOB, Shellshock.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge" style="background:#1a0a1a;color:#e685b5;border:1px solid #e685b5">Blind</span>
+              <span class="badge" style="background:#1a0a1a;color:#e685b5;border:1px solid #e685b5">Filter Bypass</span>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <a href="portswigger/ps-ssti.html" class="ps-card p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="ps-icon" style="background:#0a1a1a;color:#0dcaf0"><i class="bi bi-braces"></i></div>
+              <div>
+                <h5 class="text-white mb-0 fw-bold">SSTI</h5>
+                <span class="text-secondary small">Server-Side Template Injection</span>
+              </div>
+            </div>
+            <p class="text-secondary small mb-3">Fuzzing, engine fingerprinting, Jinja2 / Twig / Django / Freemarker payloads.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge" style="background:#0a1a1a;color:#0dcaf0;border:1px solid #0dcaf0">Jinja2</span>
+              <span class="badge" style="background:#0a1a1a;color:#0dcaf0;border:1px solid #0dcaf0">RCE</span>
+            </div>
+          </a>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+          <a href="portswigger/ps-file-upload.html" class="ps-card p-4">
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="ps-icon" style="background:#1a0a00;color:#fd7e14"><i class="bi bi-upload"></i></div>
+              <div>
+                <h5 class="text-white mb-0 fw-bold">File Upload</h5>
+                <span class="text-secondary small">Unrestricted File Upload</span>
+              </div>
+            </div>
+            <p class="text-secondary small mb-3">Content-Type bypass, path traversal, extension obfuscation, polyglot, race condition.</p>
+            <div class="d-flex gap-2 flex-wrap">
+              <span class="badge" style="background:#1a0a00;color:#fd7e14;border:1px solid #fd7e14">Web Shell</span>
+              <span class="badge" style="background:#1a0a00;color:#fd7e14;border:1px solid #fd7e14">Race Condition</span>
+            </div>
+          </a>
+        </div>
+
+      </div>
+    </div><!-- /psSection -->
+
   </main>
 
   <footer class="py-4 text-center border-top border-secondary mt-5">
@@ -1430,6 +1625,26 @@
     window.addEventListener('scroll', () => {
       const nav = document.getElementById('mainNav');
       nav.style.padding = window.scrollY > 50 ? '4px 0' : '';
+    });
+
+    // Section toggle: Boxes <-> PortSwigger
+    const btnBoxes = document.getElementById('btnBoxes');
+    const btnPS    = document.getElementById('btnPS');
+    const boxesSec = document.getElementById('boxesSection');
+    const psSec    = document.getElementById('psSection');
+
+    btnBoxes.addEventListener('click', () => {
+      btnBoxes.classList.add('active-boxes');
+      btnPS.classList.remove('active-ps');
+      boxesSec.style.display = '';
+      psSec.style.display = 'none';
+    });
+
+    btnPS.addEventListener('click', () => {
+      btnPS.classList.add('active-ps');
+      btnBoxes.classList.remove('active-boxes');
+      psSec.style.display = '';
+      boxesSec.style.display = 'none';
     });
   </script>
 </body>
