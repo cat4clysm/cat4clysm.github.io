@@ -1621,11 +1621,6 @@
       applyFilters();
     });
 
-    // Auto-select PortSwigger section if URL has #portswigger
-    if (window.location.hash === '#portswigger') {
-      btnPS.click();
-    }
-
     // Navbar scroll
     window.addEventListener('scroll', () => {
       const nav = document.getElementById('mainNav');
@@ -1651,6 +1646,11 @@
       psSec.style.display = '';
       boxesSec.style.display = 'none';
     });
+
+    // Auto-select PortSwigger section if URL has #portswigger
+    if (window.location.hash === '#portswigger') {
+      btnPS.click();
+    }
   </script>
 </body>
 </html>
