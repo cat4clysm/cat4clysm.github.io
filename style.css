@@ -107,6 +107,40 @@ body {
   transform: translateY(-3px);
 }
 
+/* Platform cards */
+.platform-card {
+  background: #0d1117;
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+}
+.htb-card {
+  border: 1px solid #9fef0033;
+}
+.htb-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px #9fef0022;
+  border-color: #9fef00;
+}
+.thm-card {
+  border: 1px solid #c1111133;
+}
+.thm-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px #c1111122;
+  border-color: #c11111;
+}
+.platform-logo {
+  width: 42px; height: 42px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.thm-stat-box {
+  background: #ffffff08;
+  border: 1px solid #ffffff0f;
+}
+
 /* Tools */
 .bg-tools {
   background-color: var(--bg-alt);
