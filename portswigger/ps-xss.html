@@ -79,11 +79,6 @@ location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cxss+id%3Dx+o
     <!-- Keywords to find XSS -->
     <section class="mb-5">
       <h4 class="text-danger border-left-red mb-3"><i class="bi bi-search"></i> Palabras clave para detectar XSS en código fuente</h4>
-      <div class="row g-2">
-        {%- for kw in "eval(),document.cookie,alert(),innerHTML,onmouseover,onload,onerror,src,href,javascript:,script,img,svg".split(",") %}
-        <div class="col-auto"><span class="badge bg-dark border border-secondary p-2 font-monospace">{{ kw }}</span></div>
-        {%- endfor %}
-      </div>
       <div class="row g-2 mt-1">
         <div class="col-auto"><span class="badge bg-dark border border-secondary p-2 font-monospace">eval()</span></div>
         <div class="col-auto"><span class="badge bg-dark border border-secondary p-2 font-monospace">document.cookie</span></div>
@@ -98,6 +93,31 @@ location = 'https://YOUR-LAB-ID.web-security-academy.net/?search=%3Cxss+id%3Dx+o
         <div class="col-auto"><span class="badge bg-dark border border-secondary p-2 font-monospace">script</span></div>
         <div class="col-auto"><span class="badge bg-dark border border-secondary p-2 font-monospace">img</span></div>
         <div class="col-auto"><span class="badge bg-dark border border-secondary p-2 font-monospace">svg</span></div>
+      </div>
+    </section>
+
+    <!-- Regex para detectar XSS -->
+    <section class="mb-5">
+      <h4 class="text-danger border-left-red mb-3"><i class="bi bi-regex"></i> Regex para encontrar posibles puntos de ataque</h4>
+      <div class="mb-3">
+        <h6 class="text-warning">1. Etiquetas &lt;script&gt;</h6>
+        <div class="code-block">
+          <pre><code>/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi
+/<script\b[^>]>([\s\S]*?)<\/script>/gi</code></pre>
+        </div>
+      </div>
+      <div class="mb-3">
+        <h6 class="text-warning">2. Atributos de eventos HTML</h6>
+        <div class="code-block">
+          <pre><code>/(on\w+)=["']([^"']+)["']/gi
+/(on\w+)\s*=\s*([^>]+)/gi</code></pre>
+        </div>
+      </div>
+      <div class="mb-3">
+        <h6 class="text-warning">3. URLs JavaScript en atributos</h6>
+        <div class="code-block">
+          <pre><code>/javascript:(?:(?![\s"'])[^:;"'])*(?:(?:"|')(?:(?![;"']).)*|[^;"'\s])?/gi</code></pre>
+        </div>
       </div>
     </section>
 
