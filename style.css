@@ -1,12 +1,9 @@
 :root {
-  --red: #00ff41;
+  --red: #dc3545;
   --bg: #0d0d0d;
   --bg-card: #111111;
   --bg-alt: #141414;
   --border: #222;
-  /* Override Bootstrap danger to match theme */
-  --bs-danger: #00ff41;
-  --bs-danger-rgb: 0, 255, 65;
 }
 
 html {
@@ -35,23 +32,6 @@ body {
   color: var(--red);
 }
 
-/* Override Bootstrap danger colors globally */
-.text-danger { color: var(--red) !important; }
-.border-danger { border-color: var(--red) !important; }
-.btn-outline-danger {
-  color: var(--red) !important;
-  border-color: var(--red) !important;
-}
-.btn-outline-danger:hover {
-  background-color: var(--red) !important;
-  color: #000 !important;
-}
-.btn-danger {
-  background-color: var(--red) !important;
-  border-color: var(--red) !important;
-  color: #000 !important;
-}
-
 /* Section titles */
 .section-title {
   font-size: 1.6rem;
@@ -71,7 +51,7 @@ body {
   border: 1px solid #333;
   border-radius: 8px;
   max-width: 560px;
-  box-shadow: 0 0 40px rgba(0, 255, 65, 0.12);
+  box-shadow: 0 0 40px rgba(220, 53, 69, 0.15);
   overflow: hidden;
 }
 
@@ -119,7 +99,7 @@ body {
   align-items: center;
   justify-content: center;
   margin: 0 auto;
-  background-color: #001a00;
+  background-color: #1a0000;
 }
 
 .stat-card {
@@ -180,7 +160,7 @@ body {
 .tool-card:hover {
   border-color: var(--red);
   transform: translateY(-4px);
-  box-shadow: 0 4px 20px rgba(0, 255, 65, 0.18);
+  box-shadow: 0 4px 20px rgba(220, 53, 69, 0.2);
 }
 
 /* Writeups */
@@ -193,7 +173,7 @@ body {
 .writeup-card:hover {
   border-color: var(--red);
   transform: translateY(-4px);
-  box-shadow: 0 4px 20px rgba(0, 255, 65, 0.13);
+  box-shadow: 0 4px 20px rgba(220, 53, 69, 0.15);
 }
 
 .border-dashed {
@@ -212,7 +192,7 @@ body {
 .filter-btn.active {
   background-color: var(--red);
   border-color: var(--red);
-  color: #000;
+  color: white;
 }
 
 /* Scrollbar */
@@ -224,7 +204,7 @@ body {
 /* Form inputs focus */
 .form-control:focus {
   border-color: var(--red);
-  box-shadow: 0 0 0 0.2rem rgba(0, 255, 65, 0.2);
+  box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
   background-color: #1a1a1a;
   color: white;
 }
