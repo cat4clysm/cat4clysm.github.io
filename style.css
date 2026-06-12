@@ -6,8 +6,12 @@
   --border: #222;
 }
 
-body {
+html {
   background-color: var(--bg);
+}
+
+body {
+  background-color: transparent;
   font-family: 'Courier New', Courier, monospace;
   scroll-behavior: smooth;
 }
@@ -39,7 +43,7 @@ body {
 
 /* Hero terminal */
 #hero {
-  background: radial-gradient(ellipse at center, #1a0000 0%, #0d0d0d 70%);
+  background: transparent;
 }
 
 .terminal-box {
