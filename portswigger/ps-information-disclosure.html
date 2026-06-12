@@ -43,7 +43,7 @@
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 1</span>Information disclosure in error messages</h5>
       <p class="text-secondary">Agregar cualquier texto al parámetro <code>productId</code>. El mensaje de error revelará la versión del framework que utiliza la aplicación.</p>
-      <img src="../img/infodis1.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis1.1.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <h4 class="text-warning mt-3 mb-2">Debugging data</h4>
@@ -51,8 +51,8 @@
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 2</span>Information disclosure on debug page</h5>
       <p class="text-secondary">El código fuente contiene un comentario con la ruta <code>/cgi-bin/phpinfo.php</code>. En esa página, buscar en las variables de entorno la variable <code>SECRET_KEY</code>.</p>
-      <img src="../img/infodis2.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/infodis2.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis2.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis2.2.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <!-- Source code disclosure -->
@@ -61,8 +61,8 @@
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 3</span>Source code disclosure via backup files</h5>
       <p class="text-secondary">Revisar <code>robots.txt</code> para encontrar rutas ocultas. Existe la carpeta <code>/backup</code> con un archivo <code>.java.bak</code> que contiene la contraseña de la base de datos en la función de conexión.</p>
-      <img src="../img/infodis3.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/infodis3.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis3.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis3.2.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <!-- Insecure configuration -->
@@ -71,11 +71,11 @@
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 4</span>Authentication bypass via information disclosure</h5>
       <p class="text-secondary">El panel de administración solo está disponible para usuarios locales. Interceptar la consulta con Burp Suite y cambiar el método <code>GET</code> por <code>TRACE</code>. La respuesta incluye una cabecera interna que revela la IP pública. Agregar la cabecera <code>X-Custom-IP-Authorization: 127.0.0.1</code> para suplantar acceso local.</p>
-      <img src="../img/infodis4.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/infodis4.2.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/infodis4.3.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/infodis4.4.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/infodis4.5.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis4.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis4.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis4.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis4.4.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis4.5.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <!-- Version control history -->
@@ -84,7 +84,7 @@
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 5</span>Information disclosure in version control history</h5>
       <p class="text-secondary">El directorio <code>/.git</code> está expuesto. Descargar recursivamente con <code>wget -r</code>, luego usar git para analizar cambios y encontrar contraseñas en commits anteriores.</p>
-      <img src="../img/infodis5.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis5.1.png" class="img-fluid rounded my-3 border border-secondary">
       <pre class="code-block"><code># Descargar el repositorio git expuesto
 wget -r https://LAB-ID.web-security-academy.net/.git
 
@@ -96,9 +96,9 @@ git log
 
 # Volver al commit que tenía la contraseña
 git checkout 7bdcbe23d2a92f2c962a1b1568a77b9590500f49</code></pre>
-      <img src="../img/infodis5.2.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/infodis5.3.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/infodis5.4.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis5.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis5.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/infodis5.4.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
   </main>

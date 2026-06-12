@@ -42,9 +42,9 @@
       <h5><span class="badge bg-danger me-2">Lab 1</span>Excessive trust in client-side controls</h5>
       <p class="text-secondary">Interceptar la consulta al dar click en <strong>Add to cart</strong>. Modificar el parámetro <code>price</code> a un valor mínimo (los 2 últimos dígitos son centavos).</p>
       <pre class="code-block"><code>productId=1&amp;redir=PRODUCT&amp;quantity=1&amp;price=100</code></pre>
-      <img src="../img/business1.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business1.2.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business1.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business1.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business1.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business1.3.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <!-- Failing to handle unconventional input -->
@@ -53,17 +53,17 @@
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 2</span>High-level logic vulnerability</h5>
       <p class="text-secondary">Agregar la chaqueta y otro producto al carrito. Interceptar el paquete al aumentar cantidad del producto 2 y cambiarla a un número negativo (-10) para reducir el precio total.</p>
-      <img src="../img/business2.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business2.2.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business2.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business2.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business2.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business2.3.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 3</span>Low-level logic flaw</h5>
       <p class="text-secondary">La cantidad máxima por consulta es 99. Mandar esa consulta al Intruder con <strong>Null payloads</strong> infinitos, máximo 1 hilo. El precio total overflow el entero y toma valores negativos. Tantear valores cercanos a 0 y completar con otro producto.</p>
-      <img src="../img/business3.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business3.2.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business3.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business3.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business3.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business3.3.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <section class="mb-4">
@@ -74,10 +74,10 @@ email=".exploit-LAB-ID.web-security-academy.net"
 admin="@dontwannacry.com"
 payload='a'*(255-len(admin))+admin
 print(payload+email)  # usar esta cadena como email al registrarse</code></pre>
-      <img src="../img/business4.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business4.2.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business4.3.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business4.4.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business4.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business4.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business4.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business4.4.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <!-- Flawed assumptions about user behavior -->
@@ -88,7 +88,7 @@ print(payload+email)  # usar esta cadena como email al registrarse</code></pre>
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 5</span>Inconsistent security controls</h5>
       <p class="text-secondary">Registrarse con cualquier cuenta. En <strong>My Account</strong> cambiar el correo a uno con terminación <code>@dontwannacry.com</code>. Esto otorga acceso al panel de administrador.</p>
-      <img src="../img/business5.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business5.1.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <h4 class="text-warning mt-3 mb-2">Users won't always supply mandatory input</h4>
@@ -96,8 +96,8 @@ print(payload+email)  # usar esta cadena como email al registrarse</code></pre>
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 6</span>Weak isolation on dual-use endpoint</h5>
       <p class="text-secondary">Iniciar sesión con <code>wiener:peter</code>. Interceptar la consulta de cambio de contraseña. Cambiar el usuario a <code>administrator</code> y eliminar el parámetro <code>current-password</code> para saltarse la verificación.</p>
-      <img src="../img/business6.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business6.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business6.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business6.2.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <h4 class="text-warning mt-3 mb-2">Users won't always follow the intended sequence</h4>
@@ -105,15 +105,15 @@ print(payload+email)  # usar esta cadena como email al registrarse</code></pre>
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 7</span>Insufficient workflow validation</h5>
       <p class="text-secondary">Realizar una compra barata y capturar en HTTP History la consulta <code>/cart/order-confirmation</code>. Enviarla al Repeater. Luego agregar la chaqueta al carrito y usar esa consulta del Repeater para confirmar la orden sin validar el saldo.</p>
-      <img src="../img/business7.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business7.2.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business7.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business7.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business7.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business7.3.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 8</span>Authentication bypass via flawed state machine</h5>
       <p class="text-secondary">Iniciar sesión interceptando paquetes. Dejar pasar la consulta de login pero <strong>dropear</strong> la consulta del <code>role-selector</code>. El rol por defecto será administrador.</p>
-      <img src="../img/business8.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business8.1.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <!-- Domain-specific flaws -->
@@ -122,11 +122,11 @@ print(payload+email)  # usar esta cadena como email al registrarse</code></pre>
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 9</span>Flawed enforcement of business rules</h5>
       <p class="text-secondary">Obtener dos cupones: <code>NEWCUST5</code> (en la página) y <code>SIGNUP30</code> (suscribiéndose al newsletter). Aplicarlos de forma <strong>intercalada</strong> para bajar el precio a 0 (no funciona dos veces el mismo consecutivamente).</p>
-      <img src="../img/business9.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business9.2.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business9.3.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business9.4.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business9.5.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business9.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business9.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business9.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business9.4.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business9.5.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <section class="mb-4">
@@ -137,32 +137,32 @@ POST /cart/coupon
 POST /cart/checkout
 GET /cart/order-confirmation?order-confirmed=true
 POST /gift-card</code></pre>
-      <img src="../img/business10.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.2.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.3.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.5.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.6.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.7.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.8.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.9.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.10.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.11.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.12.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.13.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business10.14.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.5.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.6.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.7.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.8.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.9.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.10.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.11.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.12.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.13.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business10.14.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 11</span>Authentication bypass via encryption oracle</h5>
       <p class="text-secondary">La cookie de notificación actúa como oráculo de cifrado. Usar el endpoint de comentario para cifrar y el de posts para descifrar. La cookie <code>stay-logged-in</code> tiene formato <code>usuario:timestamp</code> encriptado. Eliminar los primeros 23 bytes de prefijo (<em>"Invalid email address: "</em>) más padding necesario (9 bytes extra) para generar la cookie de administrador.</p>
-      <img src="../img/business11.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business11.2.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business11.3.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business11.4.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business11.5.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business11.6.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business11.7.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/business11.8.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business11.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business11.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business11.3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business11.4.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business11.5.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business11.6.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business11.7.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/business11.8.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
   </main>

